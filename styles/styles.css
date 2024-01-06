@@ -1,0 +1,99 @@
+* {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+h1, h2 {
+  display: flex;
+  justify-content: center;
+}
+
+h1{
+  color: aliceblue;
+}
+
+#header {
+  background-image: url("../images/Bar.jpg");
+  background-size: cover;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+nav {
+  display: flex;
+  justify-content: space-around;
+  background-color: rgb(100, 58, 7);
+  padding: 5px;
+  border-radius: 5px;
+}
+
+nav a {
+  display: block;
+  padding: 10px;
+  padding-left: 30px;
+  padding-right: 30px;
+  text-decoration: none;
+  color: aliceblue;
+}
+nav a:hover{
+  text-decoration: underline;
+  text-decoration-color: aliceblue;
+}
+
+#startStop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+}
+
+
+#startStop form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#startStop select {
+  font-size: 18px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+#startStop input {
+  padding: 10px;
+  border-radius: 5px;
+  background-color: rgb(100, 58, 7);
+  color: aliceblue; 
+}
+
+#startStop input:hover {
+  padding: 10px;
+  background-color: rgb(106, 80, 47);
+  border-radius: 5px;
+  color: aliceblue;
+}
+
+
+#showEntries {
+  border: 2px solid rgb(100, 58, 7);
+  border-radius: 5px;
+  border-collapse: collapse;
+}
+
+
+#showEntries tr:hover{
+  background-color: bisque;
+}
+
+#showEntries td, #showEntries th{
+  border: 1px solid rgb(100, 58, 7);
+  padding: 5px;
+}

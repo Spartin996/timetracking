@@ -1,0 +1,11 @@
+<div id=header>
+      <h1>
+      The Chocolate Log
+      </h1>
+</div>
+<nav>
+  <a href=index.php>Home</a>
+  <a href=about.php>About</a>
+  <a href=general_db_editor\view_table.php?table=categories>View Categories</a>
+  <a href=general_db_editor\view_table.php?table=entries>View ALL entries</a>
+</nav>
