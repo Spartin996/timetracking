@@ -25,10 +25,10 @@ function startStopForm() {
   //print_r($row);
   if($row != ""){
     //if you are currently working on XX this will happen
-    return "<span>You should currently be working on " . $row['display_name'] . ".</span><br><span>Would you like to stop?</span><br><form method=GET action=stop_work.php><br><textarea name=comment rows=4 cols=50></textarea><br><input type=submit value='Stop Work'></form>" ;
+    return "<span>Your current open Job is " . $row['display_name'] . ".</span><br><span>The Job has been open for <span id='timer'></span></span><br><form method=GET action=stop_work.php><br><textarea name=comment rows=4 cols=50>" . $row['comment'] . "</textarea><br><input type=submit value='Stop Work'></form>" ;
   } else {
     //if you are not currently working on anything this will happen
-    return "<span>Not at work you lazy bugger!</span><br><span>What should you be working on?</span> <br> <form method=GET action=start_work.php>" . generateJobsDrop('N') . "<br><textarea name=comment rows=4 cols=50></textarea><br><input type=submit value='Get To Work'></form>" ;
+    return "<span>No current open job</span><br><span>Open a Job?</span> <br> <form method=GET action=start_work.php>" . generateJobsDrop('N') . "<br><textarea name=comment rows=4 cols=50></textarea><br><input type=submit value='Get To Work'></form>" ;
   }
 
 
@@ -140,7 +140,46 @@ function minutesToHours($minutes) {
 
 //Generate a summary table
 function showEntriesSummary($dateStart, $dateEnd, $categories) {
+  global $conn;
+  if($categories == "all"){
+    $categories = "";
+    $sql = "SELECT id FROM categories";
+    $result = $conn->query($sql);
+    while($row = mysqli_fetch_array($result)){
 
+      $categories .= $row[0] . ",";
+    }
+    $categories = rtrim($categories, ",");
+    $categories = explode(',', $categories);
+  }
+
+  //add 00:00:00 to start date and midnight to end date so it is inclusive
+  $dateStart .= " 00:00:00";
+  $dateEnd .= " 23:59:59";
+
+  $table = "<table id=summary><tr><th>Job</th><th>Time Spent</th></tr>";
+  foreach ($categories as $category) {
+    
+    $sql = "SELECT id, display_name FROM categories WHERE id = " . $category;
+    $result = $conn->query($sql);
+    while($row = mysqli_fetch_array($result)){
+      $displayName = $row['display_name'];
+    }
+    
+    $sql = "SELECT SUM(`minutes`) 
+    FROM entries 
+    WHERE categories_id = " . $category . "
+    AND start_time > '" . $dateStart . "'
+    AND end_time < '" . $dateEnd . "'";
+    $result = $conn->query($sql);
+    while($row = mysqli_fetch_array($result)){
+      $minutes = $row['0'];
+    }
+    
+    $table .= "<tr><td>" . $displayName . "</td><td>" . minutesToHours($minutes) . "</td></tr>";
+  }
+  $table .= "</table>";
+  return $table;
 }
 
 //show a summary table and a full table
@@ -150,5 +189,33 @@ function showEntries($dateStart, $dateEnd, $categories) {
   return $return; 
 
 }
+
+//if a open job exists get the unix time for it
+function openJob() {
+  global $conn;
+  //see if user is currently working
+  $sql = "SELECT entries.id, categories_id, display_name, start_time, end_time, comment 
+  FROM entries
+  LEFT JOIN categories
+  ON entries.categories_id = categories.id 
+  WHERE end_time IS NULL Limit 1;";
+  $result = $conn->query($sql);
+  $row = mysqli_fetch_array($result);
+  if($row == ""){
+    return "No Open Job";
+  } else {
+    return strtotime($row['start_time']);
+  }
+}
+
+//function to set a variable to value if it does not exsist
+function issetget($var, $default = null) {
+  if(isset($_GET[$var])){
+    return $_GET[$var];
+  } else {
+    return NULL;
+  }
+}
+
 
 ?>

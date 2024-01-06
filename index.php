@@ -18,6 +18,8 @@ $date_sql = date('Y-m-d', time());
   <head>
     <title>Chocolate Log</title>
     <link rel=stylesheet href=styles/styles.css>
+    <script src="functions.js"></script>
+    <script>setInterval(function() { document.getElementById("timer").innerHTML = minutesSince('<?php echo openJob() ?>') }, 1000);</script>
   </head>
   <body>
     <?php
@@ -40,7 +42,7 @@ $date_sql = date('Y-m-d', time());
     <div id=yesterdayEntries>
       <?php
         $yesterday = getYesterday();
-        echo showEntires($yesterday, $yesterday, "all");
+        echo showEntries($yesterday, $yesterday, "all");
       ?>
     </div>
   </body>

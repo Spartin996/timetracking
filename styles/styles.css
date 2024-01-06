@@ -32,6 +32,7 @@ nav {
   background-color: rgb(100, 58, 7);
   padding: 5px;
   border-radius: 5px;
+  margin-top: 10px;
 }
 
 nav a {
@@ -82,18 +83,32 @@ nav a:hover{
 }
 
 
-#showEntries {
+table {
   border: 2px solid rgb(100, 58, 7);
   border-radius: 5px;
   border-collapse: collapse;
+  margin: 10px;
 }
 
 
-#showEntries tr:hover{
+tr:hover{
   background-color: bisque;
 }
 
-#showEntries td, #showEntries th{
+td, th{
   border: 1px solid rgb(100, 58, 7);
   padding: 5px;
+}
+
+.manEditEntry {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  margin-top: 20px;
+}
+
+.manEditEntry div {
+  display: flex;
+  justify-content: space-around;
+  margin: 10px;
 }
