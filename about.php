@@ -21,5 +21,7 @@ include "functions.php";
     <?php
     include "nav.php";
     ?>
+
+  <p>This page will have information about the software and how to install it.</p>
   </body>
 </html>

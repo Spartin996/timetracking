@@ -92,7 +92,7 @@ function showEntriesTable($dateStart, $dateEnd, $categories) {
   $result = $conn->query($sql);
     $table = "<table id=showEntries><tr><th>Job</th><th>Start Time</th><th>End Time</th><th>Time Taken</th><th>Comments</th></tr>";
   while($row = mysqli_fetch_array($result)) {
-    $table .= "<tr><td>" . $row['display_name'] . "</td><td>" . $row['start_time'] . "</td><td>" . $row['end_time'] . "</td><td>" . minutesToHours($row['minutes']) . "</td><td>" . $row['comment'] ." </td></tr>"; 
+    $table .= "<tr onclick='newWindow(`entries.php?id=" . $row['id'] . "`)' ><td>" . $row['display_name'] . "</td><td>" . displayTime($row['start_time'], "12") . "</td><td>" . displayTime($row['end_time'], "12") . "</td><td>" . minutesToHours($row['minutes']) . "</td><td>" . $row['comment'] ." </td></tr>"; 
   }
 
   $table .= "</table>";
@@ -119,10 +119,7 @@ function recalcAllMinutes() {
   while($row = mysqli_fetch_array($result)) {
     $entryId = $row['id'];
     //calculate the mintues on a job
-    //convert to a unix time stamp and calculate the nubmer of seconds between start and finish
-  $timespent = strtotime($row['end_time']) - strtotime($row['start_time']);
-  //divide by 60 to get minutes
-    $timespent = $timespent / 60;
+  $timespent = timeBetween($row['end_time'], $row['start_time']);
 
     $sql = "UPDATE entries SET `minutes` = '" . $timespent . "' WHERE id = " . $entryId;  
     $update = $conn->query($sql);
@@ -217,5 +214,36 @@ function issetget($var, $default = null) {
   }
 }
 
+//validate a date from the db as either am,pm or for a input
+//supported formats
+//12 - 12 hour
+//24 - 24 hour
+//sql - sql format
+//html - html format for the value of a datetime fields
+function displayTime($time, $format) {
+  $unix = strtotime($time);
+  if($format == "12") {
+    return date('Y-m-d g:i a', $unix);
+  }
+  if($format == "24") {
+    return date("Y-m-d H:i", $unix);
+  }
+  if($format == "sql") {
+    return date("Y-m-d H:i:s", $unix);
+  }
+  if($format == "html") {
+    $return = date("Y-m-d", $unix) . "T" . date("H:i", $unix);
+    return $return;
+  }
+}
 
+function timeBetween($end_time, $start_time) {
+  $timespent = strtotime($end_time) - strtotime($start_time);
+  //divide by 60 to get minutes
+  $timespent = $timespent / 60;
+  if($timespent > 0) {
+    $timespent = 1;
+  }
+  return $timespent;
+}
 ?>

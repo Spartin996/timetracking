@@ -4,6 +4,7 @@
 // V1.1 Created 2024-01-06 By MM - First version
 
 include 'connect.ini';
+include 'functions.php';
 
 //get time in SQL format
 $time = date('Y-m-d H:i:s', time());
@@ -19,17 +20,13 @@ if(isset($_GET['comment'])) {
 $sql = "SELECT id, start_time, end_time 
 FROM entries
 WHERE end_time IS NULL 
-Limit 1;";
+Limit 1";
 $result = $conn->query($sql);
 $row = mysqli_fetch_array($result);
-//print_r($row);
 $entryId = $row['id'];
 
-//calculate the mintues on a job
-//convert to a unix time stamp and calculate the nubmer of seconds between start and finish
-$timespent = strtotime($time) - strtotime($row['start_time']);
-//divide by 60 to get minutes
-$timespent = $timespent / 60;
+$timespent = timeBetween($time, $row['start_time']);
+
 
 $sql = "UPDATE entries SET end_time = '" . $time . "', minutes = '" . $timespent . "', comment = '" . $comment . "' WHERE id = " . $entryId;  
 $result = $conn->query($sql);

@@ -7,10 +7,36 @@
 include "functions.php";
 
 //check if form is submitted, if so update row
+$id = issetget("id");
+
+
+if(isset($_GET['hasBeenSub'])) {
+  $categories_id = issetget("categories_id");
+  $start_time = issetget("start_time");
+  $end_time = issetget("end_time");
+  $minutes = issetget("minutes");
+  $comment = issetget("comment");
+
+  if($id != "") {
+    //update sql goes here
+    $sql = "UPDATE `entries` 
+      SET `categories_id` = " . $categories_id . "
+      , `start_time` = " . $start_time . "
+      , `end_time` = " . $end_time . "
+      , `minutes` = " . $minutes . "
+      , `comment` = " . $comment . "
+      WHERE id = " . $id;
+  } else {
+    //insert goes here
+
+  }
+
+
+}
 
 //check if I am creating a new entry, if so leave blank
-$id = issetget("id");
 if($id == "") {
+  $categories_id = issetget("categories_id");
   $start_time = issetget("start_time");
   $end_time = issetget("end_time");
   $minutes = issetget("minutes");
@@ -28,7 +54,8 @@ if($id == "") {
   $comment = $row['comment'];
 }
 
-
+$start_time = displayTime($start_time, "html");
+$end_time = displayTime($end_time, "html");
 
 ?>
 
@@ -36,11 +63,10 @@ if($id == "") {
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Chocolate Log</title>
+    <title>Chocolate Log - edit entry</title>
     <link rel=stylesheet href=styles/styles.css>
   </head>
   <body>
-    <?php include "nav.php"; ?>
     <form method="GET" action="entries.php" class="manEditEntry">
 
       <input name=hasBeenSub type="hidden" value="submitted">
