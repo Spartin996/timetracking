@@ -28,7 +28,7 @@ function startStopForm() {
     return "<span>Your current open Job is " . $row['display_name'] . ".</span><br><span>The Job has been open for <span id='timer'></span></span><br><form method=GET action=stop_work.php><br><textarea name=comment rows=4 cols=50>" . $row['comment'] . "</textarea><br><input type=submit value='Stop Work'></form>" ;
   } else {
     //if you are not currently working on anything this will happen
-    return "<span>No current open job</span><br><span>Open a Job?</span> <br> <form method=GET action=start_work.php>" . generateJobsDrop('N') . "<br><textarea name=comment rows=4 cols=50></textarea><br><input type=submit value='Get To Work'></form>" ;
+    return "<span>No current open job</span><br><span>Open a Job?</span> <br>Current time:<span id='timer'></span><br> <form method=GET action=start_work.php>" . generateJobsDrop('N') . "<br><textarea name=comment rows=4 cols=50></textarea><br><input type=submit value='Get To Work'></form>" ;
   }
 
 
