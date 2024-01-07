@@ -19,6 +19,8 @@ add a close button the the entry forms just to make it look nicer
 
 [] add a delete option to the tables
 
-[] when entering the data into any of the insert statements it will repopulate the field as a new entry with the same data. 
+[] when entering the data into any of the insert statements it will repopulate the field as a new entry with the same data. this means that you can submit the same form and create duplicates 
 
-[] try a better datetime
+[] try a better datetime input
+
+[] add order by to the reports.

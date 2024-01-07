@@ -151,7 +151,7 @@ function showEntriesSummary($dateStart, $dateEnd, $categories) {
   global $conn;
   if($categories == "all"){
     $categories = "";
-    $sql = "SELECT id FROM categories";
+    $sql = "SELECT id FROM categories ORDER BY seq ASC";
     $result = $conn->query($sql);
     while($row = mysqli_fetch_array($result)){
 
