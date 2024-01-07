@@ -8,5 +8,5 @@
   <a href=about.php>About</a>
   <a href=general_db_editor\view_table.php?table=categories>View Categories</a>
   <a href=general_db_editor\view_table.php?table=entries>View ALL entries</a>
-  <a href=entries.php>Manual Entry</a>
+  <a href=# onclick='newWindow(`entries.php`)'>Manual Entry</a>
 </nav>
