@@ -11,36 +11,41 @@ $id = issetget("id");
 
 //check if form is submitted, if so update row
 if(isset($_GET['hasBeenSub'])) {
-  $categories_id = issetget("categories_id");
+  $categories = issetget("categories");
   $start_time = displayTime(issetget("start_time"), "sql");
   $end_time = displayTime(issetget("end_time"), "sql");
   $comment = issetget("comment");
 
   $minutes = timeBetween($end_time, $start_time);
-  echo $minutes;
 
   if($id != "") {
     //update sql goes here
     $sql = "UPDATE `entries` 
-      SET `categories_id` = " . $categories_id . "
-      , `start_time` = " . $start_time . "
-      , `end_time` = " . $end_time . "
-      , `minutes` = " . $minutes . "
-      , `comment` = " . $comment . "
+      SET `categories_id` = '" . $categories . "'
+      , `start_time` = '" . $start_time . "'
+      , `end_time` = '" . $end_time . "'
+      , `minutes` = '" . $minutes . "'
+      , `comment` = '" . $comment . "'
       WHERE id = " . $id;
   } else {
     //insert goes here
-
+    $sql = "INSERT INTO `entries`
+      (`id`, `categories_id`, `start_time`, `end_time`, `minutes`, `comment`)
+      VALUES (NULL, '" . $categories . "'
+      , '" . $start_time . "'
+      , '" . $end_time . "'
+      , '" . $minutes . "'
+      , '" . $comment . "')";
   }
-
+  echo $sql;
 
 } else {
 //I have not submitted the form yet
 //check if I am creating a new entry, if so leave blank
   if($id == "") {
-  $categories_id = issetget("categories_id");
-  $start_time = issetget("start_time");
-  $end_time = issetget("end_time");
+  $categories = issetget("categories");
+  $start_time = date('Y-m-d H:i:s', time());
+  $end_time = date('Y-m-d H:i:s', time());
   $minutes = issetget("minutes");
   $comment = issetget("comment");
   } else {
@@ -49,7 +54,7 @@ if(isset($_GET['hasBeenSub'])) {
     WHERE id = " . $id;
   $result = $conn->query($sql);
   $row = mysqli_fetch_array($result);
-  $categories_id = $row['categories_id'];
+  $categories = $row['categories_id'];
   $start_time = $row['start_time'];
   $end_time = $row['end_time'];
   $minutes = $row['minutes'];
@@ -76,15 +81,15 @@ $end_time = displayTime($end_time, "html");
 
       <input name=id type="hidden" value=<?php echo $id; ?>>
       <div>
-        <label for=categories>THIS WILL RESET EACH SUBMIT</label>
-        <?php echo generateJobsDrop("Y", $categories_id); ?>
+        <label for=categories>Select a Category for the Job: </label>
+        <?php echo generateJobsDrop("Y", $categories); ?>
       </div>
       <div>
-        <label for=start_time>What time did you start?</label>
+        <label for=start_time>What time did you start?: </label>
         <input name=start_time type=datetime-local value=<?php echo $start_time; ?>>
       </div>
       <div>
-      <label for=end_time>What time did you finish?</label>
+      <label for=end_time>What time did you finish?: </label>
       <input name=end_time type=datetime-local value=<?php echo $end_time; ?>>
       </div>
       <div>
@@ -92,7 +97,7 @@ $end_time = displayTime($end_time, "html");
         <span id=minutes><?php echo minutesToHours($minutes); ?></span>
       </div>
       <div>
-        <label>Leave a comment?</label>
+        <label>Leave a comment?: </label>
         <textarea name=comment rows=4 cols=50><?php echo $comment; ?></textarea>
       </div>
 
