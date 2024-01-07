@@ -39,7 +39,8 @@ function startStopForm() {
 //get a droplist of jobs
 //$incInactive will either be Y this will show all jobs
 // or N will only show active jobs
-function generateJobsDrop($incInactive) {
+// default will hold the category id that you want selected
+function generateJobsDrop($incInactive, $default = NULL) {
   //check if I should inc inactive jobs
   if($incInactive != "Y"){
     $where = "WHERE active LIKE 'Y'";
@@ -53,8 +54,14 @@ function generateJobsDrop($incInactive) {
 	$result = $conn->query($sql);
   $output = "<select name='categories'>";
 	while($row = mysqli_fetch_array($result)){
+    //check if we need to set a default value on the dropbox
+    if($default != NULL and $row[0] == $default) {
+      $selected = " selected=selected";
+    } else {
+      $selected = "";
+    }
 
-	  $output .= "<option Value='" . $row[0] . "'>" . $row[1] . "</option>";
+	  $output .= "<option Value='" . $row[0] . "' " . $selected . ">" . $row[1] . "</option>";
 	}
   $output .= "</select>";
   return $output;
@@ -239,9 +246,10 @@ function displayTime($time, $format) {
 
 function timeBetween($end_time, $start_time) {
   $timespent = strtotime($end_time) - strtotime($start_time);
-  //divide by 60 to get minutes
-  $timespent = $timespent / 60;
-  if($timespent > 0) {
+  //divide by 60 to get minutes and floor it to make it a whole number
+  $timespent = floor($timespent / 60);
+  //if it s less than 0 make it 1 so that you always do at least a minutes work
+  if($timespent <= 0) {
     $timespent = 1;
   }
   return $timespent;

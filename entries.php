@@ -6,16 +6,18 @@
 //get the environment settings and functions
 include "functions.php";
 
-//check if form is submitted, if so update row
+
 $id = issetget("id");
 
-
+//check if form is submitted, if so update row
 if(isset($_GET['hasBeenSub'])) {
   $categories_id = issetget("categories_id");
-  $start_time = issetget("start_time");
-  $end_time = issetget("end_time");
-  $minutes = issetget("minutes");
+  $start_time = displayTime(issetget("start_time"), "sql");
+  $end_time = displayTime(issetget("end_time"), "sql");
   $comment = issetget("comment");
+
+  $minutes = timeBetween($end_time, $start_time);
+  echo $minutes;
 
   if($id != "") {
     //update sql goes here
@@ -32,16 +34,16 @@ if(isset($_GET['hasBeenSub'])) {
   }
 
 
-}
-
+} else {
+//I have not submitted the form yet
 //check if I am creating a new entry, if so leave blank
-if($id == "") {
+  if($id == "") {
   $categories_id = issetget("categories_id");
   $start_time = issetget("start_time");
   $end_time = issetget("end_time");
   $minutes = issetget("minutes");
   $comment = issetget("comment");
-} else {
+  } else {
   $sql = "SELECT `id`, `categories_id`, `start_time`, `end_time`, `minutes`, `comment` 
     FROM entries
     WHERE id = " . $id;
@@ -52,6 +54,7 @@ if($id == "") {
   $end_time = $row['end_time'];
   $minutes = $row['minutes'];
   $comment = $row['comment'];
+  }
 }
 
 $start_time = displayTime($start_time, "html");
@@ -74,7 +77,7 @@ $end_time = displayTime($end_time, "html");
       <input name=id type="hidden" value=<?php echo $id; ?>>
       <div>
         <label for=categories>THIS WILL RESET EACH SUBMIT</label>
-        <?php echo generateJobsDrop("Y"); ?>
+        <?php echo generateJobsDrop("Y", $categories_id); ?>
       </div>
       <div>
         <label for=start_time>What time did you start?</label>
