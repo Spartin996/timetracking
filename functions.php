@@ -139,6 +139,9 @@ function recalcAllMinutes() {
 function minutesToHours($minutes) {
   $hours = floor($minutes / 60);
   $min = $minutes - ($hours * 60);
+  if($min < 10) {
+    $min = "0" . $min;
+  }
   return $hours . ":" . $min;
 }
 

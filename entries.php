@@ -37,7 +37,7 @@ if(isset($_GET['hasBeenSub'])) {
       , '" . $minutes . "'
       , '" . $comment . "')";
   }
-  echo $sql;
+  $run = $conn->query($sql);
 
 } else {
 //I have not submitted the form yet
