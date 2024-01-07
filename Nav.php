@@ -7,6 +7,6 @@
   <a href=index.php>Home</a>
   <a href=about.php>About</a>
   <a href=all_categories.php>View Categories</a>
-  <a href=general_db_editor\view_table.php?table=entries>View ALL entries</a>
+  <a href=filters.php>View ALL entries</a>
   <a href=# onclick='newWindow(`entries.php`)'>Manual Entry</a>
 </nav>

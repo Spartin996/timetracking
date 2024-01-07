@@ -190,6 +190,7 @@ function showEntriesSummary($dateStart, $dateEnd, $categories) {
 }
 
 //show a summary table and a full table
+//categories = all will get all categories and generate the reports
 function showEntries($dateStart, $dateEnd, $categories) {
   $return = showEntriesSummary($dateStart, $dateEnd, $categories);
   $return .= showEntriesTable($dateStart, $dateEnd, $categories);
