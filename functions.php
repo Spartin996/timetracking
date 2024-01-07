@@ -94,7 +94,7 @@ function showEntriesTable($dateStart, $dateEnd, $categories) {
   LEFT JOIN categories
   ON entries.categories_id = categories.id 
   WHERE start_time > '" . $dateStart . "'
-  AND end_time < '" . $dateEnd . "'
+  AND start_time < '" . $dateEnd . "'
   AND categories_id IN (" . $categories . ")";
   $result = $conn->query($sql);
     $table = "<table id=showEntries><tr><th>Job</th><th>Start Time</th><th>End Time</th><th>Time Taken</th><th>Comments</th></tr>";
@@ -177,7 +177,7 @@ function showEntriesSummary($dateStart, $dateEnd, $categories) {
     FROM entries 
     WHERE categories_id = " . $category . "
     AND start_time > '" . $dateStart . "'
-    AND end_time < '" . $dateEnd . "'";
+    AND start_time < '" . $dateEnd . "'";
     $result = $conn->query($sql);
     while($row = mysqli_fetch_array($result)){
       $minutes = $row['0'];
