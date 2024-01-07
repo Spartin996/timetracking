@@ -115,7 +115,8 @@ function showEntriesTable($dateStart, $dateEnd, $categories) {
 
 //function to get yesterdays date
 function getOldDate($goBack) {
-  return date_create()->modify('-'$goBack' day')->format('Y-m-d');
+  $goBack = "-" . $goBack . " days";
+  return date_create()->modify($goBack)->format('Y-m-d');
 }
 
 //recalc all minutes fields in all entries
