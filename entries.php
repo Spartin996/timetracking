@@ -73,6 +73,7 @@ $end_time = displayTime($end_time, "html");
   <head>
     <title>Chocolate Log - edit entry</title>
     <link rel=stylesheet href=styles/styles.css>
+    <script src="functions.js"></script>
   </head>
   <body>
     <form method="GET" action="entries.php" class="manEditEntry">

@@ -86,6 +86,7 @@ if(isset($_GET['hasBeenSub'])) {
   <head>
     <title>Chocolate Log - edit categories</title>
     <link rel=stylesheet href=styles/styles.css>
+    <script src="functions.js"></script>
   </head>
   <body>
     <form method="GET" action="categories.php" class="manEditCats">

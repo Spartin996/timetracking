@@ -12,6 +12,7 @@ include "functions.php";
   <head>
     <title>Chocolate Log - edit entry</title>
     <link rel=stylesheet href=styles/styles.css>
+    <script src="functions.js"></script>
   </head>
   <body>
     <?php include "nav.php"; ?>
