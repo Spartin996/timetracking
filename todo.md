@@ -14,3 +14,5 @@
 [y]add a entries page with filters
 
 add a close button the the entry forms just to make it look nicer
+
+[] change yesterday to fortnightly on the index.php

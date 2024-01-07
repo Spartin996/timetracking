@@ -38,11 +38,11 @@ $date_sql = date('Y-m-d', time());
       ?>
     </div>
 
-    <h2>Yesterday</h2>
+    <h2>Last 14 Days</h2>
     <div id=yesterdayEntries>
       <?php
-        $yesterday = getYesterday();
-        echo showEntries($yesterday, $yesterday, "all");
+        $reportStart = getOldDate('14');
+        echo showEntries($reportStart, $date_sql, "all");
       ?>
     </div>
   </body>
