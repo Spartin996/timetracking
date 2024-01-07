@@ -1,8 +1,0 @@
-[y]Need to move the time spent calculation into a function so I can add 1 to 0 minutes
-
-
-[y] actually get the comments from the open entry
-
-[y] add the start time to the open job message
-
-change the search SQL to be start time during period

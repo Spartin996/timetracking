@@ -100,14 +100,14 @@ td, th{
   padding: 5px;
 }
 
-.manEditEntry {
+.manEditEntry, .manEditCats {
   display: flex;
   flex-direction: column;
   align-content: center;
   margin-top: 20px;
 }
 
-.manEditEntry div {
+.manEditEntry div, .manEditCats div {
   display: flex;
   justify-content: space-around;
   margin: 10px;
