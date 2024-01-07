@@ -26,3 +26,5 @@ add a close button the the entry forms just to make it look nicer
 [] add order by to the reports.
 
 [] check all the html that I have quotes around attributs
+
+[] add total time worked to summary function
