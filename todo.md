@@ -16,3 +16,9 @@
 add a close button the the entry forms just to make it look nicer
 
 [] change yesterday to fortnightly on the index.php
+
+[] add a delete option to the tables
+
+[] when entering the data into any of the insert statements it will repopulate the field as a new entry with the same data. 
+
+[] try a better datetime

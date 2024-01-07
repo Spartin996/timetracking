@@ -93,14 +93,14 @@ if(isset($_GET['hasBeenSub'])) {
 
       <input name=hasBeenSub type="hidden" value="submitted">
 
-      <input name=id type="hidden" value=<?php echo $id; ?>>
+      <input name=id type="hidden" value="<?php echo $id; ?>">
       <div>
         <label for=display_name>Display Name: </label>
-        <input name=display_name type=text value=<?php echo $display_name; ?>>
+        <input name=display_name type=text value="<?php echo $display_name; ?>">
       </div>
       <div>
         <label for=description>Description: </label>
-        <input name=description type=text value=<?php echo $description; ?>>
+        <input name=description type=text value="<?php echo $description; ?>">
       </div>
       <div>
         <label for=y>Active</label>
@@ -110,7 +110,7 @@ if(isset($_GET['hasBeenSub'])) {
       </div>
       <div>
         <label for=seq>Sequence: </label>
-        <input name=seq type=text value=<?php echo $seq; ?>>
+        <input name=seq type=text value="<?php echo $seq; ?>">
       </div>
 
       <input type=submit value=Save>
