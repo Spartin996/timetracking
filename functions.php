@@ -183,8 +183,9 @@ function showEntriesSummary($dateStart, $dateEnd, $categories) {
     while($row = mysqli_fetch_array($result)){
       $minutes = $row['0'];
     }
-    
+    if ($minutes != "0") {
     $table .= "<tr><td>" . $displayName . "</td><td>" . minutesToHours($minutes) . "</td></tr>";
+    }
   }
   $table .= "</table>";
   return $table;

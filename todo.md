@@ -24,3 +24,5 @@ add a close button the the entry forms just to make it look nicer
 [] try a better datetime input
 
 [] add order by to the reports.
+
+[] check all the html that I have quotes around attributs
