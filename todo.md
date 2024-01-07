@@ -7,7 +7,7 @@
 
 [y]change the search SQL to be start time during period
 
-add a all categories page and a edit categories page
+[y]add a all categories page and a edit categories page
   []add a if active show tick if not show X
   []change the seq from a text field to something a little more pretty
 
