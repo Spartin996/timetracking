@@ -11,6 +11,6 @@
   []add a if active show tick if not show X
   []change the seq from a text field to something a little more pretty
 
-add a entries page with filters
+[y]add a entries page with filters
 
 add a close button the the entry forms just to make it look nicer

@@ -94,7 +94,7 @@ $end_time = displayTime($end_time, "html");
       <input name=end_time type=datetime-local value=<?php echo $end_time; ?>>
       </div>
       <div>
-        <span>Number of minutes spent on jop: </span>
+        <span>Number of minutes spent on job: </span>
         <span id=minutes><?php echo minutesToHours($minutes); ?></span>
       </div>
       <div>
