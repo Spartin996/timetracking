@@ -27,7 +27,7 @@
 
 [] check all the html that I have quotes around attributs
 
-[] add total time worked to summary function
+[y] add total time worked to summary function
 
 [y] update js to fix leading 0's
 

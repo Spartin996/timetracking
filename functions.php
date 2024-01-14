@@ -187,6 +187,21 @@ function showEntriesSummary($dateStart, $dateEnd, $categories) {
     $table .= "<tr><td>" . $displayName . "</td><td>" . minutesToHours($minutes) . "</td></tr>";
     }
   }
+  //add a summary to the bottom
+  
+  $displayName = "<strong>ALL JOBS</strong>";
+    
+    $sql = "SELECT SUM(`minutes`) 
+    FROM entries 
+    WHERE start_time > '" . $dateStart . "'
+    AND start_time < '" . $dateEnd . "'";
+    $result = $conn->query($sql);
+    while($row = mysqli_fetch_array($result)){
+      $minutes = $row['0'];
+    }
+    if ($minutes != "") {
+    $table .= "<tr><td>" . $displayName . "</td><td>" . minutesToHours($minutes) . "</td></tr>";
+    }
   $table .= "</table>";
   return $table;
 }
