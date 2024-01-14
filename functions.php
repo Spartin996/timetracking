@@ -234,6 +234,10 @@ function issetget($var, $default = null) {
 //sql - sql format
 //html - html format for the value of a datetime fields
 function displayTime($time, $format) {
+  //if entries ongoing show it
+  if($time == NULL) {
+    return "ONGOING";
+  }
   $unix = strtotime($time);
   if($format == "12") {
     return date('Y-m-d g:i a', $unix);

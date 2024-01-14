@@ -13,13 +13,13 @@
 
 [y]add a entries page with filters
 
-add a close button the the entry forms just to make it look nicer
+[] add a close button the the entry forms just to make it look nicer
 
 [] change yesterday to fortnightly on the index.php
 
 [] add a delete option to the tables
 
-[] when entering the data into any of the insert statements it will repopulate the field as a new entry with the same data. this means that you can submit the same form and create duplicates 
+[y] when entering the data into any of the insert statements it will repopulate the field as a new entry with the same data. this means that you can submit the same form and create duplicates 
 
 [] try a better datetime input
 
@@ -30,3 +30,5 @@ add a close button the the entry forms just to make it look nicer
 [] add total time worked to summary function
 
 [y] update js to fix leading 0's
+
+[y] add a ongoing job to reports
