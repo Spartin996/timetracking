@@ -39,6 +39,7 @@ if(isset($_GET['hasBeenSub'])) {
      VALUES (NULL, '" . $display_name . "', '" . $description . "', '" . $active . "', '" . $seq . "');";
   }
   $run = $conn->query($sql);
+  echo "<script>window.close();</script>";
 
 } else {
 //I have not submitted the form yet

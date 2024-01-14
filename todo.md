@@ -28,3 +28,5 @@ add a close button the the entry forms just to make it look nicer
 [] check all the html that I have quotes around attributs
 
 [] add total time worked to summary function
+
+[y] update js to fix leading 0's

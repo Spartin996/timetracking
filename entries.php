@@ -38,6 +38,7 @@ if(isset($_GET['hasBeenSub'])) {
       , '" . $comment . "')";
   }
   $run = $conn->query($sql);
+  echo "<script>window.close();</script>";
 
 } else {
 //I have not submitted the form yet
