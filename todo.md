@@ -32,3 +32,5 @@
 [y] update js to fix leading 0's
 
 [y] add a ongoing job to reports
+
+[ ] can we add the job open counter to the ongoing in the table?
