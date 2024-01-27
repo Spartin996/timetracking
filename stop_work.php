@@ -6,10 +6,10 @@
 include 'connect.ini';
 include 'functions.php';
 
-//get time in SQL format
+//Get time in SQL format
 $time = date('Y-m-d H:i:s', time());
 
-if(isset($_GET['comment'])) {
+if (isset($_GET['comment'])) {
   $comment = $_GET['comment'];
 } else {
   $comment = "NULL";
@@ -28,9 +28,7 @@ $entryId = $row['id'];
 $timespent = timeBetween($time, $row['start_time']);
 
 
-$sql = "UPDATE entries SET end_time = '" . $time . "', minutes = '" . $timespent . "', comment = '" . $comment . "' WHERE id = " . $entryId;  
+$sql = "UPDATE entries SET end_time = '" . $time . "', minutes = '" . $timespent . "', comment = '" . $comment . "' WHERE id = " . $entryId;
 $result = $conn->query($sql);
 // go it index.php when done
 header("Location: index.php");
-
-?>

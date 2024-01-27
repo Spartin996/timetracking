@@ -3,17 +3,17 @@
 
 function minutesSince(startTime) {
   let currentDate = new Date();
-  if(startTime === "No Open Job") {
+  if (startTime === "No Open Job") {
     let hours = currentDate.getHours();
     let minutes = currentDate.getMinutes();
     let seconds = currentDate.getSeconds();
-    if(seconds < 10) {
+    if (seconds < 10) {
       seconds = "0" + seconds;
     }
-    if(minutes < 10) {
+    if (minutes < 10) {
       minutes = "0" + minutes;
     }
-    if(hours < 10) {
+    if (hours < 10) {
       hours = "0" + hours;
     }
     return hours + ":" + minutes + ":" + seconds;
@@ -23,9 +23,9 @@ function minutesSince(startTime) {
   let difference = timestamp - startTime;
   let minutes = difference / 60;
   minutes = Math.floor(minutes);
-  let seconds = difference - (minutes * 60);
+  let seconds = difference - minutes * 60;
   seconds = Math.round(seconds);
-  if(seconds < 10) {
+  if (seconds < 10) {
     seconds = "0" + seconds;
   }
   let string = minutes.toString() + ":" + seconds.toString();
@@ -34,6 +34,6 @@ function minutesSince(startTime) {
 }
 
 //open a new window with specified url
-function newWindow(url){
+function newWindow(url) {
   window.open(url, "", "width=600,height=400");
 }

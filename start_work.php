@@ -9,12 +9,12 @@ include 'connect.ini';
 $time = date('Y-m-d H:i:s', time());
 
 
-if(isset($_GET['categories'])) {
+if (isset($_GET['categories'])) {
   $category = $_GET['categories'];
 } else {
   echo "ERROR! you forgot to select a category.<br> Return <a href=index.php>home</a>";
 }
-if(isset($_GET['comment'])) {
+if (isset($_GET['comment'])) {
   $comment = $_GET['comment'];
 } else {
   $comment = "NULL";
@@ -24,12 +24,7 @@ $sql = "INSERT INTO entries
   (`id`, `categories_id`, `start_time`, `end_time`, `comment`, `last_modified`) 
   VALUES 
   (NULL, '" . $category . "', '" . $time . "', NULL, '" . $comment . "', '" . $time . "')";
-  $result = $conn->query($sql);
+$result = $conn->query($sql);
 
 // go it index.php when done
 header("Location: index.php");
-
-
-
-
-?>
