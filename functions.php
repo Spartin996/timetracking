@@ -147,6 +147,9 @@ function minutesToHours($minutes)
   if ($min < 10) {
     $min = "0" . $min;
   }
+  if ($min == 0 || $hours == 0) {
+    return "<span id='timer2'></span>";
+  }
   return $hours . ":" . $min;
 }
 
