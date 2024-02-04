@@ -17,7 +17,6 @@ function minutesSince(startTime) {
       hours = "0" + hours;
     }
     return hours + ":" + minutes + ":" + seconds;
-    console.log(hours + ":" + minutes + ":" + seconds);
   }
   let timestamp = currentDate.getTime() / 1000;
   let difference = timestamp - startTime;
@@ -36,4 +35,13 @@ function minutesSince(startTime) {
 //open a new window with specified url
 function newWindow(url) {
   window.open(url, "", "width=600,height=400");
+}
+
+
+//add the ongoing time to each entry that is open.
+function setOngoingEntries(nodes, time) {
+  for (let i = 0; i < nodes.length; i++) {
+    let nextCell = nodes[i].parentNode.nextElementSibling;
+    nextCell.innerHTML = minutesSince(time);
+  }
 }

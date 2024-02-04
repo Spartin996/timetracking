@@ -20,15 +20,7 @@ $date_sql = date('Y-m-d', time());
   <title>Chocolate Log</title>
   <link rel='stylesheet' href='styles/styles.css'>
   <script src="functions.js"></script>
-  <script>
-    setInterval(function() {
-      document.querySelector("#timer").innerHTML = minutesSince('<?php echo openJob() ?>')
-    }, 1000);
 
-    setInterval(function() {
-      document.querySelector("#timer2").innerHTML = minutesSince('<?php echo openJob() ?>')
-    }, 1000);
-  </script>
 </head>
 
 <body>
@@ -55,6 +47,18 @@ $date_sql = date('Y-m-d', time());
     echo showEntries($reportStart, $date_sql, "all");
     ?>
   </div>
+
+  <script>
+    setInterval(function() {
+      document.querySelector("#timer").innerHTML = minutesSince('<?php echo openJob() ?>')
+    }, 1000);
+
+    let counterSpan = document.querySelectorAll("#ongoing");
+    
+    setInterval(() => setOngoingEntries(counterSpan, '<?php echo openJob() ?>')
+    , 1000);
+
+  </script>
 </body>
 
 </html>

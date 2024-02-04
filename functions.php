@@ -101,7 +101,13 @@ function showEntriesTable($dateStart, $dateEnd, $categories)
   $result = $conn->query($sql);
   $table = "<table id=showEntries><tr><th>Job</th><th>Start Time</th><th>End Time</th><th>Time Taken</th><th>Comments</th></tr>";
   while ($row = mysqli_fetch_array($result)) {
-    $table .= "<tr onclick='newWindow(`entries.php?id=" . $row['id'] . "`)' ><td>" . $row['display_name'] . "</td><td>" . displayTime($row['start_time'], "12") . "</td><td>" . displayTime($row['end_time'], "12") . "</td><td>" . minutesToHours($row['minutes']) . "</td><td>" . $row['comment'] . " </td></tr>";
+    $table .= "<tr onclick='newWindow(`entries.php?id=" . $row['id'] . "`)' >
+    <td>" . $row['display_name'] . "</td>
+    <td>" . displayTime($row['start_time'], "12") . "</td>
+    <td>" . displayTime($row['end_time'], "12") . "</td>
+    <td>" . minutesToHours($row['minutes']) . "</td>
+    <td>" . $row['comment'] . " </td>
+    </tr>";
   }
 
   $table .= "</table>";
@@ -147,7 +153,7 @@ function minutesToHours($minutes)
   if ($min < 10) {
     $min = "0" . $min;
   }
-  return $hours . ":" . $min;
+    return $hours . ":" . $min;
 }
 
 //Generate a summary table
@@ -259,7 +265,7 @@ function displayTime($time, $format)
 {
   //if entries ongoing show it
   if ($time == NULL) {
-    return "ONGOING";
+    return "<span id='ongoing'>ONGOING</span>";
   }
   $unix = strtotime($time);
   if ($format == "12") {
