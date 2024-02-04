@@ -153,14 +153,7 @@ function minutesToHours($minutes)
   if ($min < 10) {
     $min = "0" . $min;
   }
-<<<<<<< HEAD
     return $hours . ":" . $min;
-=======
-  if ($min == 0 || $hours == 0) {
-    return "<span id='timer2'></span>";
-  }
-  return $hours . ":" . $min;
->>>>>>> 0902443b0ab3d6062ceeafe29e13026cd8d9db5c
 }
 
 //Generate a summary table
