@@ -20,7 +20,6 @@ $date_sql = date('Y-m-d', time());
   <title>Chocolate Log</title>
   <link rel='stylesheet' href='styles/styles.css'>
   <script src="functions.js"></script>
-
 </head>
 
 <body>
