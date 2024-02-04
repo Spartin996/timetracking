@@ -32,8 +32,8 @@
 
 [y] add a ongoing job to reports
 
-<<<<<<< HEAD
-[] can we add the job open counter to the ongoing in the table?
-=======
 [y] can we add the job open counter to the ongoing in the table?
->>>>>>> 0902443b0ab3d6062ceeafe29e13026cd8d9db5c
+
+[] Js minutesSince function can not count past 1 hour, need to add a hours option.
+
+
