@@ -22,7 +22,11 @@ $date_sql = date('Y-m-d', time());
   <script src="functions.js"></script>
   <script>
     setInterval(function() {
-      document.getElementById("timer").innerHTML = minutesSince('<?php echo openJob() ?>')
+      document.querySelector("#timer").innerHTML = minutesSince('<?php echo openJob() ?>')
+    }, 1000);
+
+    setInterval(function() {
+      document.querySelector("#timer2").innerHTML = minutesSince('<?php echo openJob() ?>')
     }, 1000);
   </script>
 </head>
