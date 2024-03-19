@@ -24,7 +24,7 @@ $end_date = displayTime($end_date, "sql");
 </head>
 
 <body>
-  <?php include "nav.php"; ?>
+  <?php include "Nav.php"; ?>
 
   <?php
   echo showEntries($start_date, $end_date, "all");

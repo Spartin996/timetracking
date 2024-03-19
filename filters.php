@@ -17,7 +17,7 @@ include "functions.php";
 </head>
 
 <body>
-  <?php include "nav.php"; ?>
+  <?php include "Nav.php"; ?>
   <form method="GET" action="all_entries.php" class="filterEntry">
     <div>
       <label for='start_date'>Report starting?: </label>

@@ -21,7 +21,7 @@ include "functions.php";
 
 <body>
   <?php
-  include "nav.php";
+  include "Nav.php";
   ?>
 
   <p>This page will have information about the software and how to install it.</p>

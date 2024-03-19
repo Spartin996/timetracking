@@ -33,7 +33,7 @@ $table .= "</table>";
 
 <body>
   <?php
-  include "nav.php";
+  include "Nav.php";
   ?>
 
   <p>This shows a list of all categories in the system and allows you to edit them.</p>

@@ -24,7 +24,7 @@ $date_sql = date('Y-m-d', time());
 
 <body>
   <?php
-  include "nav.php";
+  include "Nav.php";
   ?>
 
 
