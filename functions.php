@@ -10,6 +10,15 @@
 require "Database.php";
 
 
+//dump and Die
+function dd($variable) {
+  echo "<pre>";
+  var_dump($variable);
+  echo "</pre>";
+  die();
+}
+
+
 //Generate the main div for index.php
 function startStopForm()
 {
