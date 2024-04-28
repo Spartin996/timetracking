@@ -39,3 +39,5 @@
 [] make more obvious that it is running
 
 [] perhaps add a pause to ongoing tasks after a set number of hours
+
+[] change config.php to a gitnore or raise up a level further

@@ -9,7 +9,7 @@ $config = [
   'charset' => 'UTF8mb4'
 ];
 $dbuser = 'root';
-$dbpass = 'root';
+$dbpass = '';
 
 
 
