@@ -36,4 +36,6 @@
 
 [] Js minutesSince function can not count past 1 hour, need to add a hours option.
 
+[] make more obvious that it is running
 
+[] perhaps add a pause to ongoing tasks after a set number of hours
