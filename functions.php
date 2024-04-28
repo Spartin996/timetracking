@@ -6,8 +6,8 @@
 
 
 //get the environment settings and functions
-include "connect.ini";
-
+//include "connect.ini";
+require "Database.php";
 
 
 //Generate the main div for index.php
