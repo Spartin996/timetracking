@@ -7,15 +7,15 @@
 
 //get the environment settings and functions
 include "functions.php";
-include "connect.ini";
+
 
 //Get all the entries from categories and add them to a table
 $table = "<table><tr><th>Display</th><th>Description</th><th>Active</th><th>Sequence</th></tr>";
 $sql = "SELECT id, display_name, `description`, active, seq
   FROM categories
   ORDER BY seq asc";
-$result = $conn->query($sql);
-while ($row = mysqli_fetch_array($result)) {
+$result = $db->query($sql)->fetchAll();
+foreach ($result as $row) {
   $table .= "<tr onclick='newWindow(`categories.php?id=" . $row['id'] . "`)' ><td>" . $row['display_name'] . "</td><td>" . $row['description'] . "</td><td>" . $row['active'] . "</td><td>" . $row['seq'] . "</td></tr>";
 }
 $table .= "</table>";

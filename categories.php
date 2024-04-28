@@ -39,7 +39,7 @@ if (isset($_GET["hasBeenSub"])) {
     (`id`, `display_name`, `description`, `active`, `seq`)
      VALUES (NULL, '" . $display_name . "', '" . $description . "', '" . $active . "', '" . $seq . "');";
   }
-  $run = $conn->query($sql);
+  $run = $db->query($sql)->fetchAll();
   echo "<script>window.close();</script>";
 } else {
   //Form Not submitted
@@ -63,11 +63,10 @@ if (isset($_GET["hasBeenSub"])) {
     $sql = "SELECT id, display_name, `description`, active, seq
     FROM categories
     WHERE id = " . $id;
-    $result = $conn->query($sql);
-    $row = mysqli_fetch_array($result);
-    $display_name = $row['display_name'];
-    $description = $row['description'];
-    $active = $row['active'];
+    $result = $db->query($sql)->fetch();
+    $display_name = $result['display_name'];
+    $description = $result['description'];
+    $active = $result['active'];
     //Value for radio buttons
     if ($active == "Y") {
       $yes = " checked=checked";
@@ -76,7 +75,7 @@ if (isset($_GET["hasBeenSub"])) {
       $yes = "";
       $no =  " checked=checked";
     }
-    $seq = $row['seq'];
+    $seq = $result['seq'];
   }
 }
 

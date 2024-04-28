@@ -3,7 +3,7 @@
 
 // V1.1 Created 2024-01-06 By MM - First version
 
-include 'connect.ini';
+include 'functions.php';
 
 //get time in SQL format
 $time = date('Y-m-d H:i:s', time());
@@ -24,7 +24,7 @@ $sql = "INSERT INTO entries
   (`id`, `categories_id`, `start_time`, `end_time`, `comment`, `last_modified`) 
   VALUES 
   (NULL, '" . $category . "', '" . $time . "', NULL, '" . $comment . "', '" . $time . "')";
-$result = $conn->query($sql);
+$result = $db->query($sql)->fetchAll();
 
 // go it index.php when done
 header("Location: index.php");
