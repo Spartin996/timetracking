@@ -4,11 +4,29 @@ require('Database.php');
 
 
 
-
-$sql = "SELECT id, display_name FROM categories WHERE id = :id ORDER BY seq ASC";
+//dump and Die
+function dd($variable) {
+  echo "<pre>";
+  var_dump($variable);
+  echo "</pre>";
+  die();
+}
 
 $db = new Database($config, $dbuser, $dbpass);
 
-$entry = $db->query($sql, ['id' => 1])->fetchAll();
 
-print_r($entry);
+
+
+
+$sql = "SELECT entries.id, categories_id, display_name, start_time, end_time, comment 
+FROM entries
+LEFT JOIN categories
+ON entries.categories_id = categories.id 
+WHERE end_time IS NULL Limit 1;";
+
+
+$result = $db->query($sql)->fetchAll();
+dd($results);
+
+
+//$row = mysqli_fetch_array($result);

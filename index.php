@@ -6,7 +6,7 @@
 
 
 //get the environment settings and functions
-include "functions.php";
+require_once('functions.php');
 
 $time_sql = date('Y-m-d H:i:s', time());
 $date_sql = date('Y-m-d', time());
@@ -35,7 +35,7 @@ $date_sql = date('Y-m-d', time());
   <h2>Today</h2>
   <div id='todayEntries'>
     <?php
-    echo showEntries($date_sql, $date_sql, "all");
+    //echo showEntries($date_sql, $date_sql, "all");
     ?>
   </div>
 
@@ -43,7 +43,7 @@ $date_sql = date('Y-m-d', time());
   <div id='yesterdayEntries'>
     <?php
     $reportStart = getOldDate('14');
-    echo showEntries($reportStart, $date_sql, "all");
+    //echo showEntries($reportStart, $date_sql, "all");
     ?>
   </div>
 

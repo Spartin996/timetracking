@@ -19,16 +19,13 @@ class Database
     }
   }
 
-  public function query($sql, $params)
+  public function query($sql, $param = [])
   {
-    //$sql is the Query
-    //for example, SELECT id, display_name FROM categories WHERE id = :id ORDER BY seq ASC
-    //Params is a keyed array of params for the query ['id' => 1]
-
     $statement = $this->connection->prepare($sql);
-    $statement->execute($params);
+    $statement->execute($param);
 
 
     return $statement;
   }
+
 }

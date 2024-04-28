@@ -7,7 +7,9 @@
 
 //get the environment settings and functions
 //include "connect.ini";
-require "Database.php";
+require('config.php');
+require('Database.php');
+$db = new Database($config, $dbuser, $dbpass);
 
 
 //dump and Die
@@ -25,18 +27,17 @@ function startStopForm()
 //it will show either the current job with a stop button
 //or a list of jobs and a start button
 
-  global $conn;
+  global $db;
   //see if user is currently working
   $sql = "SELECT entries.id, categories_id, display_name, start_time, end_time, comment 
   FROM entries
   LEFT JOIN categories
   ON entries.categories_id = categories.id 
   WHERE end_time IS NULL Limit 1;";
-  $result = $conn->query($sql);
-  $row = mysqli_fetch_array($result);
-  if ($row != "") {
+  $result = $db->query($sql)->fetch();
+  if ($result) {
     //if you are currently working on XX this will happen
-    return "<span>Your current open Job is " . $row['display_name'] . ".</span><br><span>The Job has been open for <span id='timer'></span></span><br><form method=GET action=stop_work.php><br><textarea name=comment rows=4 cols=50>" . $row['comment'] . "</textarea><br><input type=submit value='Stop Work'></form>";
+    return "<span>Your current open Job is " . $result['display_name'] . ".</span><br><span>The Job has been open for <span id='timer'></span></span><br><form method=GET action=stop_work.php><br><textarea name=comment rows=4 cols=50>" . $result['comment'] . "</textarea><br><input type=submit value='Stop Work'></form>";
   } else {
     //if you are not currently working on anything this will happen
     return "<span>No current open job</span><br><span>Open a Job?</span> <br>Current time:<span id='timer'></span><br> <form method=GET action=start_work.php>" . generateJobsDrop('N') . "<br><textarea name=comment rows=4 cols=50></textarea><br><input type=submit value='Get To Work'></form>";
@@ -59,20 +60,20 @@ function generateJobsDrop($incInactive, $default = NULL)
     $where = "";
   }
 
-  global $conn;
+  global $db;
   //see if user is currently working
   $sql = "SELECT id, display_name FROM categories " . $where . " ORDER BY seq ASC";
-  $result = $conn->query($sql);
+  $result = $db->query($sql)->fetchAll();
   $output = "<select name='categories'>";
-  while ($row = mysqli_fetch_array($result)) {
+  foreach($result as $row) {
     //check if we need to set a default value on the dropbox
-    if ($default != NULL and $row[0] == $default) {
+    if ($default != NULL and $row['id'] == $default) {
       $selected = " selected=selected";
     } else {
       $selected = "";
     }
 
-    $output .= "<option Value='" . $row[0] . "' " . $selected . ">" . $row[1] . "</option>";
+    $output .= "<option Value='" . $row['id'] . "' " . $selected . ">" . $row['display_name'] . "</option>";
   }
   $output .= "</select>";
   return $output;
