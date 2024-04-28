@@ -24,7 +24,7 @@ $sql = "INSERT INTO entries
   (`id`, `categories_id`, `start_time`, `end_time`, `comment`, `last_modified`) 
   VALUES 
   (NULL, '" . $category . "', '" . $time . "', NULL, '" . $comment . "', '" . $time . "')";
-$result = $db->query($sql)->fetchAll();
+$result = $db->query($sql)->fetch();
 
 // go it index.php when done
 header("Location: index.php");

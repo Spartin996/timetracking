@@ -27,6 +27,6 @@ $timespent = timeBetween($time, $result['start_time']);
 
 
 $sql = "UPDATE entries SET end_time = '" . $time . "', minutes = '" . $timespent . "', comment = '" . $comment . "' WHERE id = " . $entryId;
-$result = $db->query($sql)->fetchAll();
+$result = $db->query($sql)->fetch();
 // go it index.php when done
 header("Location: index.php");

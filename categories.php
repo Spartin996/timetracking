@@ -39,7 +39,7 @@ if (isset($_GET["hasBeenSub"])) {
     (`id`, `display_name`, `description`, `active`, `seq`)
      VALUES (NULL, '" . $display_name . "', '" . $description . "', '" . $active . "', '" . $seq . "');";
   }
-  $run = $db->query($sql)->fetchAll();
+  $run = $db->query($sql)->fetch();
   echo "<script>window.close();</script>";
 } else {
   //Form Not submitted

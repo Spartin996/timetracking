@@ -37,7 +37,7 @@ if (isset($_GET["hasBeenSub"])) {
       , '" . $minutes . "'
       , '" . $comment . "')";
   }
-  $run = $db->query($sql)->fetchAll();
+  $run = $db->query($sql)->fetch();
   echo "<script>window.close();</script>";
 } else {
   //Form not submitted
@@ -52,7 +52,7 @@ if (isset($_GET["hasBeenSub"])) {
     $sql = "SELECT `id`, `categories_id`, `start_time`, `end_time`, `minutes`, `comment` 
     FROM entries
     WHERE id = " . $id;
-    $result = $db->query($sql)->fetchAll();
+    $result = $db->query($sql)->fetch();
     $categories = $result["categories_id"];
     $start_time = $result["start_time"];
     $end_time = $result["end_time"];

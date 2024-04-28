@@ -8,7 +8,7 @@
 //get the environment settings and functions
 //include "connect.ini";
 require('config.php');
-require('Database.php');
+require('Database.php'); 
 $db = new Database($config, $dbuser, $dbpass);
 
 
@@ -246,7 +246,7 @@ function openJob()
   LEFT JOIN categories
   ON entries.categories_id = categories.id 
   WHERE end_time IS NULL Limit 1;";
-  $result = $db->query($sql)->fetchAll();
+  $result = $db->query($sql)->fetch();
   if ($result == "") {
     return "No Open Job";
   } else {
