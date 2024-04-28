@@ -83,15 +83,15 @@ function generateJobsDrop($incInactive, $default = NULL)
 //function to show all entries for a period for a category in a table
 function showEntriesTable($dateStart, $dateEnd, $categories)
 {
-  global $conn;
+  global $db;
   //if categories is all get all ID from the categories table
   if ($categories == "all") {
     $categories = "";
     $sql = "SELECT id FROM categories";
-    $result = $conn->query($sql);
-    while ($row = mysqli_fetch_array($result)) {
+    $result = $db->query($sql)->fetchAll();
+    foreach ($result as $row) {
 
-      $categories .= $row[0] . ",";
+      $categories .= $row['id'] . ",";
     }
     $categories = rtrim($categories, ",");
   }
@@ -108,9 +108,9 @@ function showEntriesTable($dateStart, $dateEnd, $categories)
   WHERE start_time > '" . $dateStart . "'
   AND start_time < '" . $dateEnd . "'
   AND categories_id IN (" . $categories . ")";
-  $result = $conn->query($sql);
+  $result = $db->query($sql)->fetchAll();
   $table = "<table id=showEntries><tr><th>Job</th><th>Start Time</th><th>End Time</th><th>Time Taken</th><th>Comments</th></tr>";
-  while ($row = mysqli_fetch_array($result)) {
+  foreach ($result as $row) {
     $table .= "<tr onclick='newWindow(`entries.php?id=" . $row['id'] . "`)' >
     <td>" . $row['display_name'] . "</td>
     <td>" . displayTime($row['start_time'], "12") . "</td>
@@ -140,16 +140,16 @@ function getOldDate($goBack)
 //recalc all minutes fields in all entries
 function recalcAllMinutes()
 {
-  global $conn;
+  global $db;
   $sql = "SELECT id, start_time, end_time FROM entries";
-  $result = $conn->query($sql);
-  while ($row = mysqli_fetch_array($result)) {
+  $result = $db->query($sql)->fetchAll();
+  foreach ($result as $row) {
     $entryId = $row['id'];
     //calculate the mintues on a job
     $timespent = timeBetween($row['end_time'], $row['start_time']);
 
     $sql = "UPDATE entries SET `minutes` = '" . $timespent . "' WHERE id = " . $entryId;
-    $update = $conn->query($sql);
+    $update = $db->query($sql);
   }
 
   return "ALL Entries Recalculated";
@@ -169,14 +169,14 @@ function minutesToHours($minutes)
 //Generate a summary table
 function showEntriesSummary($dateStart, $dateEnd, $categories)
 {
-  global $conn;
+  global $db;
   if ($categories == "all") {
     $categories = "";
     $sql = "SELECT id FROM categories ORDER BY seq ASC";
-    $result = $conn->query($sql);
-    while ($row = mysqli_fetch_array($result)) {
+    $result = $db->query($sql)->fetchAll();
+    foreach ($result as $row) {
 
-      $categories .= $row[0] . ",";
+      $categories .= $row['id'] . ",";
     }
     $categories = rtrim($categories, ",");
     $categories = explode(',', $categories);
@@ -190,19 +190,19 @@ function showEntriesSummary($dateStart, $dateEnd, $categories)
   foreach ($categories as $category) {
 
     $sql = "SELECT id, display_name FROM categories WHERE id = " . $category;
-    $result = $conn->query($sql);
-    while ($row = mysqli_fetch_array($result)) {
+    $result = $db->query($sql)->fetchAll();
+    foreach ($result as $row) {
       $displayName = $row['display_name'];
     }
 
-    $sql = "SELECT SUM(`minutes`) 
+    $sql = "SELECT SUM(`minutes`) as Sum
     FROM entries 
     WHERE categories_id = " . $category . "
     AND start_time > '" . $dateStart . "'
     AND start_time < '" . $dateEnd . "'";
-    $result = $conn->query($sql);
-    while ($row = mysqli_fetch_array($result)) {
-      $minutes = $row['0'];
+    $result = $db->query($sql)->fetchAll();
+    foreach ($result as $row) {
+      $minutes = $row['Sum'];
     }
     if ($minutes != "") {
       $table .= "<tr><td>" . $displayName . "</td><td>" . minutesToHours($minutes) . "</td></tr>";
@@ -212,13 +212,13 @@ function showEntriesSummary($dateStart, $dateEnd, $categories)
 
   $displayName = "<strong>ALL JOBS</strong>";
 
-  $sql = "SELECT SUM(`minutes`) 
+  $sql = "SELECT SUM(`minutes`) as Sum
     FROM entries 
     WHERE start_time > '" . $dateStart . "'
     AND start_time < '" . $dateEnd . "'";
-  $result = $conn->query($sql);
-  while ($row = mysqli_fetch_array($result)) {
-    $minutes = $row['0'];
+  $result = $db->query($sql)->fetchAll();
+  foreach ($result as $row) {
+    $minutes = $row['Sum'];
   }
   if ($minutes != "") {
     $table .= "<tr><td>" . $displayName . "</td><td>" . minutesToHours($minutes) . "</td></tr>";
@@ -239,19 +239,18 @@ function showEntries($dateStart, $dateEnd, $categories)
 //if a open job exists get the unix time for it
 function openJob()
 {
-  global $conn;
+  global $db;
   //see if user is currently working
   $sql = "SELECT entries.id, categories_id, display_name, start_time, end_time, comment 
   FROM entries
   LEFT JOIN categories
   ON entries.categories_id = categories.id 
   WHERE end_time IS NULL Limit 1;";
-  $result = $conn->query($sql);
-  $row = mysqli_fetch_array($result);
-  if ($row == "") {
+  $result = $db->query($sql)->fetchAll();
+  if ($result == "") {
     return "No Open Job";
   } else {
-    return strtotime($row['start_time']);
+    return strtotime($result['start_time']);
   }
 }
 
