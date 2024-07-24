@@ -1,5 +1,8 @@
 <?php
 
+
+// add a copy of this file to the main directory and update it with your mysql details and timezone
+
 // Enviroment Variables and settings
 
 $config = [
