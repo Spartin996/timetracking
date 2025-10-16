@@ -1,0 +1,3 @@
+ALTER TABLE `entries` ADD `tags` TEXT NULL AFTER `comment`;
+
+CREATE TABLE `tags` ( `id` INT NOT NULL AUTO_INCREMENT , `tag` VARCHAR(50) NOT NULL , PRIMARY KEY (`id`));

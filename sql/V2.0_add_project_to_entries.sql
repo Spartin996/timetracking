@@ -1,0 +1,1 @@
+ALTER TABLE `entries` ADD `project_id` INT(4) NULL AFTER `tags`;

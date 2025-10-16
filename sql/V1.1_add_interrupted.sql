@@ -1,0 +1,1 @@
+ALTER TABLE `entries` ADD `interrupted` VARCHAR(1) NOT NULL DEFAULT 'N' AFTER `minutes`;

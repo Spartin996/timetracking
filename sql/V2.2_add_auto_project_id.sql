@@ -1,0 +1,1 @@
+ALTER TABLE `entries` CHANGE `project_id` `project_id` VARCHAR(4) NULL DEFAULT NULL;
