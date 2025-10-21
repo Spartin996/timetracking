@@ -3,41 +3,31 @@
 This is a lite utility to track time spent on a defined list of categories with a simple todo list and reporting.
 
 It is structured using a PHP server with MYSQL.
-Something along the lines of Xampp for windows.
+Something along the lines of XAMPP for Windows.
 
 **Install**
 
-**structure**
-_pages_
-Home page - landing page
-allows for creating of _entries_ so start a job finish a job stuff - perhaps include a timer perhaps you have been going for
-allow for ending of job _need to allow for leaving page_
-perhaps a summary of the last 10 jobs
+**Database structure**
 
-edit page - allow for manually editing entries
+### entries - The main time tracking table containing:
+- Primary key (`id`)
+- Foreign key to categories (`categories_id`)
+- Time tracking fields (`start_time`, `end_time`, `minutes`)
+- Status flags (`interrupted` - Y/N flag for interrupted sessions)
+- Metadata (`comment`, `tags`, `last_modified`)
+- Project association (`project_id` - varchar(4), can be null)
 
-report page - allow for generating reports for a period
-for example work done for 14 days
-total time spend on each catergory
-total time spent on a single cat between dates.
-export to CSV??
+### categories - Work categories/types with:
+- Basic info (`id`, `display_name`, `description`)
+- Status and ordering (`active`, `seq`)
+projects - Project management table featuring:
+- Project metadata (`title`, `project_desc`, `date_created`, `date_closed`)
+- Category association (`project_cat`)
+- Progress tracking (`minutes`, `steps`, `steps_complete`, `steps_incomplete`)
+- Progress tracking (`minutes`, `steps`, `steps_complete`, `steps_incomplete`)
 
-_database_
-Have a database to store all user controlled data
-have 2 tables
-categories - holds job categories
-Fields
-id
-display_name - used in all dropdowns
-desc - possibly used in longer descriptions fields
-active - used to move things to the bottom of the list
-seq - to define order shown
+### tags - Simple tag system:
 
-Entries
-Fields
-id
-cat_id - foreign key to categories table
-start_time - date_timefield to allow for times going past midnight working in 24 hr time
-end_time
-comment - just a varchar to allow for notes on work
-edited - this just updates if you edit it after the fact
+### settings - Application configuration
+- Stores key-value pairs for app-wide settings
+- Example fields: (`id`, `setting_key`, `setting_value`, `description`)

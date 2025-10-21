@@ -7,12 +7,12 @@
 [y]change the search SQL to be start time during period
 
 [y]add a all categories page and a edit categories page
-[]add a if active show tick if not show X
-[]change the seq from a text field to something a little more pretty
+  [] If active, show a tick; if not, show an X
+  []change the seq from a text field to a dropdown or slider for better usability
 
 [y]add a entries page with filters
 
-[] add a close button the the entry forms just to make it look nicer
+[] add a close button to the entry forms just to make it look nicer
 
 [y] change yesterday to fortnightly on the index.php
 
@@ -35,10 +35,10 @@
 
 [y] can we add the job open counter to the ongoing in the table?
 
-[] Js minutesSince function can not count past 1 hour, need to add a hours option.
+[] The JS minutesSince function cannot count past 1 hour; add an hours option.
 
 [y] make more obvious that it is running
-  change the default header colour slightly to reflect active
+  change the main header color slightly to reflect active
 
 [X] perhaps add a pause to ongoing tasks after a set number of hours
   disregard as you will need to correct it manually so this makes it clear that it is required
@@ -47,7 +47,7 @@
 
 [y] add a interrupted flag to the DB and button to add it
   [y] cleanup the stop.php file
-  [] need to add a config page to check if the field is in the db and update it.
+  [] need to add a config page to check if the 'interrupted' field is in the db and update it if missing.
 
 
 [y] need to add a form to add tags to the list of supported tags
@@ -57,3 +57,12 @@
 [y] need to restructure the files into folders
 
 [y] add a catid of 0 to call category filters to support creating a project or entry without a category.
+
+
+
+**cleanup before making public**
+
+[] update the entries popup to work on 90% of pages
+
+[] error catching and installation help
+

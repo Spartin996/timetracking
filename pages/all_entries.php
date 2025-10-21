@@ -27,7 +27,7 @@ if (isset($_GET['numbercats'])){
   //if you provide a single category
   $categoriescsv = $_GET['category'];
 } else {
-  //if you do not have a Catergory param at all just get all of them
+  //if you do not have a Category param at all just get all of them
   $categoriescsv = getAllCategoriesCSV();
 }
 
