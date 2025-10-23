@@ -5,7 +5,7 @@
 
 //Get the environment settings and functions
 include "../php/functions.php";
-include "../connect.ini";
+include "../Database.php";
 session_start();
 
 //todo add support for delete and disable

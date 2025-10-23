@@ -3,7 +3,7 @@
 
 
 include '../php/functions.php';
-include '../connect.ini';
+include '../Database.php';
 
 //Get time in SQL format
 $time = date('Y-m-d H:i:s', time());

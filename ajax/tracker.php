@@ -3,7 +3,7 @@
 //this will be called by a ajax call on all pages
 
 include "../php/functions.php";
-include "../connect.ini";
+include "../Database.php";
 session_start();
 
 

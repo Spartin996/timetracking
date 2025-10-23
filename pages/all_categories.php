@@ -7,7 +7,7 @@
 
 //Get the environment settings and functions
 include "../php/functions.php";
-include "../connect.ini";
+include "../Database.php";
 session_start();
 
 

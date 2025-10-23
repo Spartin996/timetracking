@@ -1,0 +1,13 @@
+<?php
+
+// Database Connect
+// copy this file up one directory, change the name to config.php and update the User, Pass, DB as needed
+// you can also change the timezone here if needed
+
+$dbhost = "localhost";
+$dbuser = "root";
+$dbpass = "root";
+$db = "time_sheets";
+
+// Change the line below to your timezone!
+date_default_timezone_set('Australia/Brisbane');

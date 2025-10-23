@@ -1,9 +1,9 @@
 <?php
 //file to save a entry without ending it.
 
-//include the functions and the connect.ini
+//include the functions and the Database.php
 include '../php/functions.php';
-include '../connect.ini';
+include '../Database.php';
 
 
 //get the data from JSON

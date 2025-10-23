@@ -4,7 +4,13 @@
 
 // It will check that the db is in place and working
 
-include 'connect.ini';
+//check for the db connection
+
+if (!file_exists('Database.php')) {
+  die("Database connection file not found. Please copy Database.php from the install directory and update the database credentials.");
+} else {
+  include 'Database.php';
+}
 
 
 //put the settings into the session

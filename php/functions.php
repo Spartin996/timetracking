@@ -5,7 +5,7 @@
 
 
 //get the environment settings and functions
-include "../connect.ini";
+include "../Database.php";
 
 
 //dump and Die

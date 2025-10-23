@@ -4,7 +4,7 @@
 // V1.1 Created 2024-01-06 By MM - First version
 
 include '../php/functions.php';
-include '../connect.ini';
+include '../Database.php';
 
 //get time in SQL format
 $time = date('Y-m-d H:i:s', time());

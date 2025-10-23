@@ -5,7 +5,7 @@
 
 //Get the environment settings and functions
 include "../php/functions.php";
-include "../connect.ini";
+include "../Database.php";
 session_start();
 
 $data = json_decode(file_get_contents('php://input'), true);
