@@ -13,6 +13,7 @@ if (!file_exists('Database.php')) {
 }
 
 
+
 //put the settings into the session
 
 
@@ -40,12 +41,6 @@ $_SESSION['settings'] = getSettings();
 
 
 
-
-
-
-
-
-// check the settings in the db file and save relevant settings to the session
 
 
 //if the required settings are not in the db, add them and then continue
