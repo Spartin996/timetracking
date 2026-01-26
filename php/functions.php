@@ -716,3 +716,16 @@ function showTheme() {
   </style>";
 }
 
+
+
+//function to check if the settings are in the session
+function check_settings() {
+  
+  if (!isset($_SESSION['settings']['name'])) {
+    logAction("Settings not found in session, redirecting to index.php to load them", "file");
+    header("Location: ../index.php");
+    exit();
+  }
+
+
+}

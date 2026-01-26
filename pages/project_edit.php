@@ -6,6 +6,8 @@ include "../php/functions.php";
 include "../Database.php";
 session_start();
 
+check_settings();
+
 $id = issetget('id');
 
 //Creating a new entry, so leave everything blank or get data from a GET

@@ -9,6 +9,8 @@
 include "../php/functions.php" ;
 session_start();
 
+check_settings();
+
 $time_sql = date('Y-m-d H:i:s', time());
 $date_sql = date('Y-m-d', time());
 

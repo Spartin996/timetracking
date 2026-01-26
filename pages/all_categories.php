@@ -10,6 +10,8 @@ include "../php/functions.php";
 include "../Database.php";
 session_start();
 
+check_settings();
+
 
 //Get all the entries from categories and add them to a table
 $table = "<table><tr><th>Display</th><th>Description</th><th>Active</th><th>Entries</th><th>Projects</th><th>Sequence</th></tr>";

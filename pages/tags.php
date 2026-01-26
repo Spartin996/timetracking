@@ -8,6 +8,8 @@ include "../php/functions.php";
 include "../Database.php";
 session_start();
 
+check_settings();
+
 //todo add support for delete and disable
 
 $id = issetget("id");

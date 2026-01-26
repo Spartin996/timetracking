@@ -8,6 +8,8 @@ include "../php/functions.php";
 include "../Database.php";
 session_start();
 
+check_settings();
+
 //get the categories from the db and make check boxes
 $sql = "SELECT id, display_name FROM categories ORDER BY seq ASC";
 $result = $conn->query($sql);

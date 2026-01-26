@@ -5,6 +5,8 @@
 include "../php/functions.php";
 session_start();
 
+check_settings();
+
 //get the date range
 
 $date_sql = date('Y-m-d', time());

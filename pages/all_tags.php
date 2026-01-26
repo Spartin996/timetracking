@@ -10,6 +10,7 @@ include "../php/functions.php";
 include "../Database.php";
 session_start();
 
+check_settings();
 
 //Get all the entries from tags and add them to a table
 $table = "<table><tr><th>Tag</th></tr>";

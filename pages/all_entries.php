@@ -7,6 +7,8 @@
 include "../php/functions.php";
 session_start();
 
+check_settings();
+
 $date_sql = date('Y-m-d', time());
 
 $start_date = issetget("start_date", $date_sql);

@@ -8,6 +8,8 @@ include "../php/functions.php";
 include "../Database.php";
 session_start();
 
+check_settings();
+
 $id = issetget("id");
 
 //Form is submitted, GET Variables

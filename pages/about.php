@@ -9,6 +9,8 @@
 include "../php/functions.php";
 session_start();
 
+check_settings();
+
 ?>
 
 

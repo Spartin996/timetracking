@@ -60,4 +60,8 @@ $_SESSION['settings'] = getSettings();
 
 // redirect to the actual index page
 
-echo "<a href='./pages/index.php'>Go to the main page</a>";
+// echo "<a href='./pages/index.php'>Go to the main page</a>";
+
+// auto redirect to the actual index page
+header("Location: ./pages/index.php");
+exit();
