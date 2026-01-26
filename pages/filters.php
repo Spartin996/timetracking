@@ -58,8 +58,8 @@ $checkboxes .= "<input type='hidden' name='numbercats' value='" . $i . "'>"
     </div>
     
     <div>
-      <p>Comment Includes:</p><br>
       <div>
+      Comment Includes: 
         <input type="text" name="comment">
       </div>
     </div>

@@ -37,4 +37,4 @@
 </nav>
 
 <div id='trackerWindow' style="display: none;"></div>
-<div id='message'></div>
+<div id='message' style="display: none;"></div>
