@@ -36,5 +36,5 @@
   <a href='#' onclick='newWindow(`entries.php`)'>Manual Entry</a>
 </nav>
 
-<div id='trackerWindow'></div>
+<div id='trackerWindow' style="display: none;"></div>
 <div id='message'></div>

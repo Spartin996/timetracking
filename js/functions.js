@@ -256,11 +256,13 @@ function arrayToCSV(array) {
 //generic function to display a message for 1-2 seconds on the screen so I do not use alert.
 function displayMessage(message) {
   let messageDiv = document.getElementById("message");
+  messageDiv.style.display = "flex";
   let messageDOM = document.createElement("span");
   messageDOM.innerHTML = message;
   messageDiv.appendChild(messageDOM);
   setTimeout(() => {
     messageDOM.remove();
+    messageDiv.style.display = "none";
   }, 5000);
 }
 
@@ -268,6 +270,9 @@ function displayMessage(message) {
 //add a function to display a floating start stop window or refresh it
 function trackerWindow() {
   let trackerWindow = document.getElementById("trackerWindow");
+  
+  //set the tracker window to visible
+  trackerWindow.style.display = "flex";
 
 
 
@@ -353,7 +358,7 @@ function startTimer() {
   xhr.onload = function() {
     if (xhr.status === 200) {
       let result = xhr.responseText;
-      displayMessage("Result for Start Timer: " + result);
+      displayMessage("Time Tracker started");
       console.log(result);
       trackerWindow();
       toggleNavColor();
@@ -365,7 +370,7 @@ function startTimer() {
   }
 
   xhr.send(JSON.stringify(data));
-  displayMessage("Request Timer Started");
+  displayMessage("Timer Starting");
 }
 
 //function to stop the timer
@@ -389,7 +394,7 @@ function stopTimer() {
         xhr.onload = function() {
           if (xhr.status === 200) {
             let result = xhr.responseText;
-            displayMessage("Result for Stop Timer: " + result);
+            displayMessage("Time Tracker stopped");
             console.log(result);
             trackerWindow();
             toggleNavColor();
@@ -400,7 +405,7 @@ function stopTimer() {
         }
 
         xhr.send(JSON.stringify(data));
-        displayMessage("Request Timer Stopped");
+        displayMessage("Timer Stopping");
       })
       .catch((error) => {
         displayMessage("Failed to create new project: " + error.message);
@@ -414,7 +419,7 @@ function stopTimer() {
     xhr.onload = function() {
       if (xhr.status === 200) {
         let result = xhr.responseText;
-        displayMessage("Result for Stop Timer: " + result);
+        displayMessage("Time Tracker stopped");
         console.log(result);
         trackerWindow();
         toggleNavColor();
@@ -451,7 +456,7 @@ function saveEntry() {
         xhr.onload = function() {
           if (xhr.status === 200) {
             let result = xhr.responseText;
-            displayMessage("Result for Save Entry: " + result);
+            displayMessage("Entry saved");
             //refresh the tracker window with the new project
             trackerWindow();
             console.log(result);
@@ -462,7 +467,7 @@ function saveEntry() {
         }
 
         xhr.send(JSON.stringify(data));
-        displayMessage("Request Entry Saved");
+        displayMessage("Entry Saving");
       })
       .catch((error) => {
         displayMessage("Failed to create new project: " + error.message);
@@ -476,7 +481,7 @@ function saveEntry() {
         xhr.onload = function() {
           if (xhr.status === 200) {
             let result = xhr.responseText;
-            displayMessage("Result for Save Entry: " + result);
+            displayMessage("Entry Saved");
             console.log(result);
           } else {
             console.log("save entry failed with status: " + xhr.status);
@@ -485,7 +490,7 @@ function saveEntry() {
         }
 
         xhr.send(JSON.stringify(data));
-        displayMessage("Request Entry Saved");
+        displayMessage("Entry Saving");
   }
 }
 
@@ -534,7 +539,7 @@ function createNewProject(projectName, ProjectDesc) {
     xhr.onload = function() {
       if (xhr.status === 200) {
         let result = xhr.responseText;
-        displayMessage("status for create project: " + xhr.status);
+        displayMessage("Project created");
         console.log(result);
         let resultParts = result.split('=');
         let id = resultParts.pop();
@@ -550,7 +555,7 @@ function createNewProject(projectName, ProjectDesc) {
     };
 
     xhr.send(JSON.stringify(data));
-    displayMessage("Request Project Created");
+    displayMessage("Project Creating");
   });
 }
 
