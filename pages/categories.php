@@ -48,7 +48,7 @@ if (isset($_GET["hasBeenSub"])) {
   }
   $run = $conn->query($sql);
   logAction("Ran SQL on DB, " . $sql, "file");
-//  echo "<script>window.close();</script>";
+  echo "<script>window.close();</script>";
 } else {
   //Form Not submitted
 

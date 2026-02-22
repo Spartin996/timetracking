@@ -10,6 +10,9 @@ session_start();
 
 check_settings();
 
+//add the theme
+showTheme();
+
 $id = issetget("id");
 
 //Form is submitted, GET Variables

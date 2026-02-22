@@ -4,7 +4,7 @@ CREATE TABLE `projects` (
   `title` varchar(255) NOT NULL,
   `date_created` datetime NOT NULL,
   `date_closed` datetime DEFAULT NULL,
-  `project_desc` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `project_desc` longtext DEFAULT NULL,
   `minutes` int NOT NULL,
   `steps` int DEFAULT NULL,
   `steps_complete` int DEFAULT NULL,
