@@ -22,6 +22,7 @@
     <div class="dropdown1_content">
       <a href='all_categories.php'>View Categories</a>
       <a href='all_tags.php'>View Tags</a>
+      <a href='settings.php'>Settings</a>
     </div>
   </div>
 
