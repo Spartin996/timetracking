@@ -10,22 +10,25 @@ include '../Database.php';
 $time = date('Y-m-d H:i:s', time());
 
 
-if (isset($_GET['categories'])) {
-  $category = $_GET['categories'];
-} else {
+$category = issetrequest('categories');
+if ($category === null || $category === '') {
   echo "ERROR! you forgot to select a category.<br> Return <a href=index.php>home</a>";
+  exit;
 }
-if (isset($_GET['comment'])) {
-  $comment = $_GET['comment'];
-} else {
-  $comment = "NULL";
+$comment = issetrequest('comment', '');
+$tags = issetrequest('tags', '');
+$interrupted = issetrequest('interrupted', 'N');
+if ($interrupted !== 'Y') {
+  $interrupted = 'N';
 }
 
+$comment = $conn->real_escape_string($comment);
+$tags = $conn->real_escape_string($tags);
 
 $sql = "INSERT INTO entries 
-  (`id`, `categories_id`, `start_time`, `end_time`, `comment`, `last_modified`) 
+  (`id`, `categories_id`, `start_time`, `end_time`, `comment`, `tags`, `interrupted`, `last_modified`) 
   VALUES 
-  (NULL, '" . $category . "', '" . $time . "', NULL, '" . $comment . "', '" . $time . "')";
+  (NULL, '" . $category . "', '" . $time . "', NULL, '" . $comment . "', '" . $tags . "', '" . $interrupted . "', '" . $time . "')";
 $result = $conn->query($sql);
 logAction("Ran SQL on DB, " . $sql, "file");
 

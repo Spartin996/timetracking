@@ -7,11 +7,19 @@ Something along the lines of XAMPP for Windows.
 
 **Install**
 
-  1. Download and install XAMPP or a similar LAMP/WAMP stack.
-  2. Place the Time Tracking application files in the web server root directory (e.g., `htdocs` for XAMPP).
-  3. Configure the database connection settings in `config.php`.
-  4. Create a MySQL database and import the provided SQL schema.
-  5. Access the application in your browser (e.g., `http://localhost/timetracking`).
+  1. Download and install XAMPP, Laragon, or a similar LAMP/WAMP stack.
+  2. Place the Time Tracking application folder in the web server root directory (e.g., `htdocs` or `www`).
+  3. Open the app in your browser (e.g., `http://localhost/timetracking`). You will be redirected to the installer.
+  4. Enter your MySQL host, username, password, database name, and timezone, then click Install.
+  5. The installer creates `config.php`, creates the database if needed, and applies the schema. You are then sent to the app.
+
+**Manual config (optional)**
+
+  Copy `Install/config.php.example` to `config.php` in the application root and edit the credentials. On the next page load the database will be created (if missing) and any pending SQL files under `sql/` will be applied.
+
+**Keeping the schema up to date**
+
+  Add new migration files under `sql/` using the naming pattern `V2.3_description.sql`. The next request applies any files not yet recorded in the `schema_migrations` table.
 
 
 **Database structure**

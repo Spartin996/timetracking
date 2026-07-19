@@ -1,53 +1,22 @@
 <?php
 
-//This is the first landing page for the software.
+// This is the first landing page for the software.
+// It checks that the db is in place and working, then redirects to the app.
 
-// It will check that the db is in place and working
-
-//check for the db connection
-
-if (!file_exists('Database.php')) {
-  die("Database connection file not found. Please copy Database.php from the install directory and update the database credentials.");
-} else {
-  include 'Database.php';
+if (!file_exists(__DIR__ . '/config.php')) {
+  header('Location: ./install.php');
+  exit;
 }
 
+include __DIR__ . '/Database.php';
 
-
-//put the settings into the session
-
-include 'php/functions.php';
-
-
+// put the settings into the session
+include __DIR__ . '/php/functions.php';
 
 session_start();
 
 $_SESSION['settings'] = getSettings();
 
-
-
-
-
-
-//if the required settings are not in the db, add them and then continue
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// redirect to the actual index page
-
-// echo "<a href='./pages/index.php'>Go to the main page</a>";
-
 // auto redirect to the actual index page
-header("Location: ./pages/index.php");
+header('Location: ./pages/index.php');
 exit();

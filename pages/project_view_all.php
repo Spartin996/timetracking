@@ -101,9 +101,6 @@ check_settings();
 
   initializeFloatingWindow();
 
-  // set the possible tags
-    let possibleTags = [];
-
 </script>
 
 </html>

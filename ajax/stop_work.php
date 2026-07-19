@@ -79,11 +79,15 @@ logAction("Ran SQL on DB, " . $sql, "file");
 
 $timespent = timeBetween($time, $row['start_time']);
 
+// Interrupted entries need a follow-up by default
+$follow_up = ($interrupted === 'Y') ? 'Y' : 'N';
+
 $sql = "UPDATE entries 
 SET end_time = '" . $time . "',
  minutes = '" . $timespent . "',
  `categories_id` = '" . $curCategories . "',
  interrupted = '" . $interrupted . "',
+ follow_up = '" . $follow_up . "',
  comment = '" . $comment . "',
  project_id = " . $project_id . ",
  tags = '" . $tags . "'

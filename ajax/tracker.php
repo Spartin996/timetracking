@@ -37,8 +37,8 @@ if ($row) {
       </p>
       <form method='GET' action='stop_work.php'>
         <div class='form-group'>
-          <label for='comment'>Comment:</label>
-          <textarea name='comment' id='comment' rows='4' cols='50'>" . $row['comment'] . "</textarea>
+          <label for='comment-editor'>Comment:</label>
+          " . quillEditorMarkup('comment', $row['comment']) . "
         </div>
         <div class='form-group'>
           <label for='tags'>Project:</label>
@@ -105,8 +105,8 @@ if ($row) {
       " . CategoryDropList('entries', 'N') . "
       </div>
       <div class='form-group'>
-      <label for='comment'>Comment:</label>
-      <textarea name='comment' id='comment' rows='4' cols='50'></textarea>
+      <label for='comment-editor'>Comment:</label>
+      " . quillEditorMarkup('comment') . "
       </div>
       <div class='form-group'>
        <div id='linkToProject'></div>

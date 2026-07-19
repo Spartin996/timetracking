@@ -5,7 +5,7 @@
 
 
 //get the environment settings and functions
-include "../Database.php";
+include __DIR__ . '/../Database.php';
 
 
 //dump and Die
@@ -14,6 +14,40 @@ function dd($variable) {
   var_dump($variable);
   echo "</pre>";
   die();
+}
+
+/**
+ * Quill CDN assets (safe to call more than once per request).
+ */
+function quillAssets()
+{
+  static $included = false;
+  if ($included) {
+    return '';
+  }
+  $included = true;
+  return '<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />'
+    . '<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>';
+}
+
+/**
+ * Compact Quill editor markup with a hidden input for form / AJAX sync.
+ *
+ * @param string $name Hidden input name/id
+ * @param string $content Initial HTML
+ * @param string|null $editorId Optional editor element id
+ */
+function quillEditorMarkup($name, $content = '', $editorId = null)
+{
+  $editorId = $editorId ?: ($name . '-editor');
+  return '<div class="quill-compact-wrap">'
+    . '<div class="quill-editor" id="' . htmlspecialchars($editorId, ENT_QUOTES, 'UTF-8') . '"'
+    . ' data-quill-target="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '">'
+    . $content
+    . '</div>'
+    . '<input type="hidden" name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '"'
+    . ' id="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '" value="">'
+    . '</div>';
 }
 
 
@@ -36,16 +70,18 @@ function startStopForm()
   $row = mysqli_fetch_array($result);
   if ($row) {
     //if you are currently working on XX this will happen
-    return "<span>Your current open Job is " . $row['display_name'] . ".</span><br><span>The Job has been open for <span id='timer'></span></span><br><form method=GET action=stop_work.php><br><textarea name=comment rows=4 cols=50>" . $row['comment'] . "</textarea><br>
+    $tagsEsc = htmlspecialchars((string) $row['tags'], ENT_QUOTES, 'UTF-8');
+    return "<span>Your current open Job is " . $row['display_name'] . ".</span><br><span>The Job has been open for <span id='timer'></span></span><br><form method=POST action=stop_work.php><br>"
+      . quillEditorMarkup('comment', $row['comment']) . "<br>
     " . CategoryDropList('entries','N') . " <br>    <div>
-      <span>Were you interrupted: </span> <span id='interrupted'><input name='interrupted' type='checkbox' value='Y'></span>
+      <span>Were you interrupted: </span> <span id='interrupted'><input name='interrupted' id='interrupted' type='checkbox' value='Y'></span>
     </div>    <div class='tags'>
       <div>
         <label>Add Tags: </label>
         <input type='text' name='addTags' id='addTags' onkeyup='showTags(this.value)'>
       </div>
       <div id='divTags'></div>
-      <input type='hidden' name='tags' id='tags' value='" . $row['tags'] . "'>
+      <input type='hidden' name='tags' id='tags' value='" . $tagsEsc . "'>
       <div id='displayTags'>
 
       </div>
@@ -53,7 +89,9 @@ function startStopForm()
 <input type=submit value='Stop Work'></form>";
   } else {
     //if you are not currently working on anything this will happen
-    return "<span>No current open job</span><br><span>Open a Job?</span> <br>Current time:<span id='timer'></span><br> <form method=GET action=start_work.php>" . CategoryDropList('entries','N') . "<br><textarea name=comment rows=4 cols=50></textarea><br><input type=submit value='Get To Work'></form>";
+    return "<span>No current open job</span><br><span>Open a Job?</span> <br>Current time:<span id='timer'></span><br> <form method=POST action=start_work.php>"
+      . CategoryDropList('entries','N') . "<br>" . quillEditorMarkup('comment')
+      . "<br><input type=submit value='Get To Work'></form>";
   }
 }
 
@@ -127,19 +165,15 @@ function showEntriesTable($dateStart, $dateEnd, $categories, $order = "asc")
   global $conn;
   //if categories is all get all ID from the categories table
   if ($categories == "all") {
-    $categories = "";
-    $sql = "SELECT id FROM categories";
-    $result = $conn->query($sql);
-    logAction("Ran SQL on DB, " . $sql, "file");
-    while ($row = mysqli_fetch_array($result)) {
-
-      $categories .= $row['id'] . ",";
-    }
+    $categories = getAllCategoriesCSV();
   }
-    $categories = rtrim($categories, ",");
+  $categories = implode(',', array_filter(array_map('intval', explode(',', rtrim((string) $categories, ',')))));
 
-
-
+  $table = "<table id=showEntries><tr onclick=tableToCSV(this)><th>Category</th><th>Start Time</th><th>End Time</th><th>Time Taken</th><th>Interrupted</th><th>Comments</th><th>Tags</th><th>Project</th></tr>";
+  if ($categories === '') {
+    $table .= "</table>";
+    return $table;
+  }
 
   $sql = "SELECT entries.id, categories_id, display_name, start_time, end_time, entries.minutes, `interrupted`, `comment`, `tags`, `project_id`, projects.title 
   FROM entries
@@ -155,7 +189,6 @@ function showEntriesTable($dateStart, $dateEnd, $categories, $order = "asc")
   
     $result = $conn->query($sql);
   logAction("Ran SQL on DB from ShowEntriesTable, " . $sql, "file");
-  $table = "<table id=showEntries><tr onclick=tableToCSV(this)><th>Category</th><th>Start Time</th><th>End Time</th><th>Time Taken</th><th>Interrupted</th><th>Comments</th><th>Tags</th><th>Project</th></tr>";
   while ($row = mysqli_fetch_array($result)) {
     $table .= "<tr onclick='newWindow(`entries.php?id=" . $row['id'] . "`)' >
     <td>" . $row['display_name'] . "</td>
@@ -249,12 +282,12 @@ function showEntriesSummary($dateStart, $dateEnd, $categories)
   if ($categories == "all") {
     $categories = getAllCategoriesCSV();
   }
-    $categories = rtrim($categories, ",");
-    $categories = explode(',', $categories);
-
+  $categories = array_filter(array_map('intval', explode(',', rtrim((string) $categories, ','))));
 
   $table = "<table id=summary><tr onclick=tableToCSV(this)><th>Category</th><th>Time Spent</th></tr>";
   foreach ($categories as $category) {
+    $displayName = '';
+    $minutes = '';
 
     $sql = "SELECT id, display_name FROM categories WHERE id = " . $category;
     $result = $conn->query($sql);
@@ -370,6 +403,18 @@ function issetpost($var, $default = null)
   }
 }
 
+/** Prefer POST, then GET, then default. */
+function issetrequest($var, $default = null)
+{
+  if (isset($_POST[$var]) && $_POST[$var] != "" && $_POST[$var] != NULL) {
+    return $_POST[$var];
+  }
+  if (isset($_GET[$var]) && $_GET[$var] != "" && $_GET[$var] != NULL) {
+    return $_GET[$var];
+  }
+  return $default;
+}
+
 //validate a date from the db as either am,pm or for a input
 //supported formats
 //12 - 12 hour
@@ -440,7 +485,14 @@ function logAction($var, $mode = 'both')
     echo "<script>console.log('" . $var . "'); </script>";
   }
   if ($mode != 'console'){
-    $logfile = fopen('../log/logfile.log', 'a');
+    $logDir = __DIR__ . '/../log';
+    if (!is_dir($logDir)) {
+      mkdir($logDir, 0755, true);
+    }
+    $logfile = fopen($logDir . '/logfile.log', 'a');
+    if ($logfile === false) {
+      return;
+    }
     $date = date('F j, Y, G:i:s');
     fwrite($logfile, '****' . $date);
     fwrite($logfile, PHP_EOL . $var . PHP_EOL . PHP_EOL);
@@ -450,7 +502,7 @@ function logAction($var, $mode = 'both')
 
 //function to display a tag
 function dislpayTags($tags) {
-  $tags = str_replace("|", "", $tags);
+  $tags = str_replace("|", "", (string) ($tags ?? ''));
   $tags = rtrim($tags, ",");
 
   return $tags;
@@ -688,32 +740,104 @@ function setting($setting) {
   return $_SESSION['settings'][$setting]['value'];
 }
 
-//function to get the themes and add them to the HTML header
-function showTheme() {
-  //themes will be stored in the Session so I can just display them here
-
-  $prim_bg = $_SESSION['settings']['primary_background']['value'];
-  $second_bg = $_SESSION['settings']['secondary_background']['value'];
-  $active_bg = $_SESSION['settings']['active_background']['value'];
-  $neutral_white = $_SESSION['settings']['neutral_white']['value'];
-  $neutral_gray = $_SESSION['settings']['neutral_gray']['value'];
-  $neutral_active = $_SESSION['settings']['neutral_active']['value'];
-  $header_img = $_SESSION['settings']['header_img']['value'];
-
-  echo "<style>
-  :root {
-    --primary-background: " . $prim_bg . ";
-    --secondary-background: " . $second_bg . ";
-    --active-background: " . $active_bg . ";
-    --neutral-white: " . $neutral_white . ";
-    --neutral-gray: " . $neutral_gray . ";
-    --neutral-active: " . $neutral_active . ";
+/**
+ * Read a setting value with a fallback when the key is missing.
+ */
+function settingValue($setting, $default = '')
+{
+  if (isset($_SESSION['settings'][$setting]['value'])) {
+    return $_SESSION['settings'][$setting]['value'];
+  }
+  return $default;
 }
 
+/**
+ * Build a CSS custom-property block for a light or dark palette.
+ */
+function themePaletteCss($prefix = '')
+{
+  $map = [
+    'primary_background' => '--primary-background',
+    'secondary_background' => '--secondary-background',
+    'active_background' => '--active-background',
+    'neutral_white' => '--neutral-white',
+    'neutral_gray' => '--neutral-gray',
+    'neutral_active' => '--neutral-active',
+    'page_background' => '--page-background',
+    'text_color' => '--text-color',
+    'border_color' => '--border-color',
+    'on_primary' => '--on-primary',
+  ];
+
+  $defaults = [
+    '' => [
+      'primary_background' => '#7e471b',
+      'secondary_background' => '#bd760d',
+      'active_background' => '#f0ec2b',
+      'neutral_white' => '#ffffff',
+      'neutral_gray' => '#999999',
+      'neutral_active' => '#f0ec2b',
+      'page_background' => '#faf8f5',
+      'text_color' => '#2c2416',
+      'border_color' => '#d0c4b4',
+      'on_primary' => '#ffffff',
+    ],
+    'dark_' => [
+      'primary_background' => '#a65f28',
+      'secondary_background' => '#c9842e',
+      'active_background' => '#c9a227',
+      'neutral_white' => '#2a2420',
+      'neutral_gray' => '#8a8078',
+      'neutral_active' => '#5a4a28',
+      'page_background' => '#14110e',
+      'text_color' => '#ede6dc',
+      'border_color' => '#3d342c',
+      'on_primary' => '#fff8f0',
+    ],
+  ];
+
+  $css = '';
+  foreach ($map as $key => $var) {
+    $settingKey = $prefix . $key;
+    $fallback = $defaults[$prefix][$key] ?? '';
+    $css .= '    ' . $var . ': ' . settingValue($settingKey, $fallback) . ";\n";
+  }
+  return $css;
+}
+
+//function to get the themes and add them to the HTML header
+function showTheme() {
+  $header_img = settingValue('header_img', '../images/Bar.jpg');
+  $theme_mode = settingValue('theme_mode', 'system');
+  if (!in_array($theme_mode, ['light', 'dark', 'system'], true)) {
+    $theme_mode = 'system';
+  }
+
+  $lightCss = themePaletteCss('');
+  $darkCss = themePaletteCss('dark_');
+
+  echo "<style>
+  :root, [data-theme=\"light\"] {
+" . $lightCss . "  }
+
+  [data-theme=\"dark\"] {
+" . $darkCss . "  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme=\"light\"]) {
+" . $darkCss . "    }
+  }
+
   #header {
-    background-image: url(" . $header_img . ");
+    background-image: url(" . htmlspecialchars($header_img, ENT_QUOTES, 'UTF-8') . ");
   }
   </style>";
+
+  if ($theme_mode === 'light' || $theme_mode === 'dark') {
+    echo "<script>document.documentElement.setAttribute('data-theme', " . json_encode($theme_mode) . ");</script>";
+  } else {
+    echo "<script>document.documentElement.removeAttribute('data-theme');</script>";
+  }
 }
 
 
@@ -727,7 +851,10 @@ function check_settings() {
     exit();
   }
 
-
+  // Reload when new preference keys appear after a migration.
+  if (!isset($_SESSION['settings']['theme_mode']) || !isset($_SESSION['settings']['home_view'])) {
+    $_SESSION['settings'] = getSettings();
+  }
 }
 
 
@@ -747,3 +874,6 @@ function getSettings() {
 
   return $settings;
 }
+
+require_once __DIR__ . '/home_views.php';
+

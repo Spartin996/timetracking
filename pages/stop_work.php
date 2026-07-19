@@ -9,23 +9,19 @@ include '../Database.php';
 //Get time in SQL format
 $time = date('Y-m-d H:i:s', time());
 
-if (isset($_GET['comment'])) {
-  $comment = $_GET['comment'];
-} else {
-  $comment = "NULL";
-}
-$interrupted = issetget("interrupted", "N");
-$tags = issetget("tags");
+$comment = issetrequest('comment', 'NULL');
+$interrupted = issetrequest("interrupted", "N");
+$tags = issetrequest("tags");
 
 //You were interrupted 
 //todo check this logic and move it below the update, while this works it is not the best way to do it
 //the only it works is because the select statement is getting the lowest id, while working this is not safe.
-if (isset($_GET['interrupted'])){
+if (isset($_POST['interrupted']) || isset($_GET['interrupted'])) {
 
-  if (isset($_GET['categories'])) {
-    $category = $_GET['categories'];
-  } else {
+  $category = issetrequest('categories');
+  if ($category === null || $category === '') {
     echo "ERROR! you forgot to select a category.<br> Return <a href=index.php>home</a>";
+    exit;
   }
 
 $sql = "INSERT INTO entries 
@@ -51,7 +47,10 @@ $entryId = $row['id'];
 
 $timespent = timeBetween($time, $row['start_time']);
 
-$sql = "UPDATE entries SET end_time = '" . $time . "', minutes = '" . $timespent . "', interrupted = '" . $interrupted . "', comment = '" . $comment . "', tags = '" . $tags . "' WHERE id = " . $entryId;
+// Interrupted entries need a follow-up by default
+$follow_up = ($interrupted === 'Y') ? 'Y' : 'N';
+
+$sql = "UPDATE entries SET end_time = '" . $time . "', minutes = '" . $timespent . "', interrupted = '" . $interrupted . "', follow_up = '" . $follow_up . "', comment = '" . $comment . "', tags = '" . $tags . "' WHERE id = " . $entryId;
 $result = $conn->query($sql);
 logAction("Ran SQL on DB, " . $sql, "file");
 // go it index.php when done

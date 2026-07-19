@@ -1,6 +1,73 @@
 // functions in js
 // V1.1 Created 2024-01-06 By MM - First version
 
+var possibleTags = [];
+
+const compactQuillToolbar = [
+  [{ list: "bullet" }, { list: "ordered" }],
+  ["bold", "underline"],
+  ["link"],
+  ["clean"],
+];
+
+// Initialize compact Quill editors inside a root node (default: document).
+function initQuillEditors(root) {
+  root = root || document;
+  if (typeof Quill === "undefined") {
+    return;
+  }
+
+  root.querySelectorAll(".quill-editor:not([data-quill-ready])").forEach((el) => {
+    const quill = new Quill(el, {
+      modules: {
+        toolbar: compactQuillToolbar,
+      },
+      theme: "snow",
+      placeholder: "Add a comment…",
+    });
+    el.setAttribute("data-quill-ready", "1");
+
+    const sync = function () {
+      const targetName = el.getAttribute("data-quill-target");
+      if (!targetName) {
+        return;
+      }
+      const hidden =
+        (el.parentElement && el.parentElement.querySelector("#" + targetName)) ||
+        document.getElementById(targetName);
+      if (hidden) {
+        hidden.value = quill.getSemanticHTML();
+      }
+    };
+
+    sync();
+    quill.on("text-change", sync);
+  });
+}
+
+// Push current Quill HTML into hidden inputs before submit / AJAX.
+function syncQuillInputs(root) {
+  root = root || document;
+  if (typeof Quill === "undefined") {
+    return;
+  }
+
+  const scope = root.querySelectorAll ? root : document;
+  scope.querySelectorAll(".quill-editor[data-quill-ready]").forEach((el) => {
+    const quill = Quill.find(el);
+    const targetName = el.getAttribute("data-quill-target");
+    if (!quill || !targetName) {
+      return;
+    }
+    const hidden =
+      (el.parentElement && el.parentElement.querySelector("#" + targetName)) ||
+      document.getElementById(targetName);
+    if (hidden) {
+      hidden.value = quill.getSemanticHTML();
+    }
+  });
+}
+
 function minutesSince(startTime) {
   let currentDate = new Date();
   if (startTime === "No Open Job") {
@@ -284,6 +351,7 @@ function trackerWindow() {
     if (xhr.status === 200) {
       let result = xhr.responseText;
       trackerWindow.innerHTML = result;
+      initQuillEditors(trackerWindow);
       //wait a bit for the DOM to be ready and then add the tags
       setTimeout(displayTags(), 500);
       //check if I am looking at a project and add the option to link to it
@@ -302,6 +370,7 @@ function trackerWindow() {
 
 //get entries data and return JSON for updating the table
 function getEntriesForm() {
+  syncQuillInputs();
 
   let id = document.getElementById("entryId") ? document.getElementById("entryId").value : null;
   //this is the current category if it is a open job
@@ -309,7 +378,7 @@ function getEntriesForm() {
   //this is the new category if it is a open job that has been interrupted
   let category = document.getElementById("categories").value;
   let startTime = document.getElementById("timerValue").value;
-  let comment = document.getElementById("comment").value;
+  let comment = document.getElementById("comment") ? document.getElementById("comment").value : "";
   let interrupted = "";
   let interruptedDOM = document.getElementById("interrupted") ? document.getElementById("interrupted").checked : false;
   if (interruptedDOM) {
@@ -597,6 +666,35 @@ function toggleNavColor() {
   navBar.classList.toggle('active');
 }
 
+// Cycle light → dark → system and persist via settings.
+function cycleThemeMode() {
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", "../ajax/theme_mode.php", true);
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState !== 4) {
+      return;
+    }
+    if (xhr.status !== 200) {
+      console.log("theme mode update failed with status: " + xhr.status);
+      return;
+    }
+    let data;
+    try {
+      data = JSON.parse(xhr.responseText);
+    } catch (e) {
+      console.log("theme mode update returned invalid JSON");
+      return;
+    }
+    if (data.theme_mode === "light" || data.theme_mode === "dark") {
+      document.documentElement.setAttribute("data-theme", data.theme_mode);
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+    displayMessage("Theme: " + data.theme_mode);
+  };
+  xhr.send();
+}
+
 
 //get the current project ID so that you can start a entry straight to the project
 function getCurrentProjectID() {
@@ -612,4 +710,219 @@ function displayLinkToProject() {
   if (id) {
     linkDiv.innerHTML = `<label for="linkToProject">Add Entry to Project</label><input type="checkbox" id="linkToProjectCheckbox" checked>`;
   }
+}
+
+// Persist home layout preference and reload.
+function switchHomeView(view) {
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", "../ajax/home_view.php");
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      window.location.href = "index.php";
+    } else {
+      displayMessage("Failed to switch home view");
+    }
+  };
+  xhr.send(JSON.stringify({ home_view: view }));
+}
+
+// Compact home: show/hide the main nav behind the hamburger.
+function toggleNavMenu(forceOpen) {
+  let nav = document.getElementById("mainNav");
+  let btn = document.getElementById("navHamburger");
+  if (!nav || !btn) {
+    return;
+  }
+  let open = typeof forceOpen === "boolean" ? forceOpen : !nav.classList.contains("is-open");
+  nav.classList.toggle("is-open", open);
+  btn.setAttribute("aria-expanded", open ? "true" : "false");
+}
+
+document.addEventListener("click", function (event) {
+  let nav = document.getElementById("mainNav");
+  if (!nav || !nav.classList.contains("is-open")) {
+    return;
+  }
+  if (!nav.contains(event.target)) {
+    toggleNavMenu(false);
+  }
+});
+
+// Persist calendar day/week span and reload.
+function switchCalendarSpan(span) {
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", "../ajax/home_view.php");
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      let params = new URLSearchParams(window.location.search);
+      let day = params.get("day");
+      window.location.href = day ? "index.php?day=" + encodeURIComponent(day) : "index.php";
+    } else {
+      displayMessage("Failed to switch calendar span");
+    }
+  };
+  xhr.send(JSON.stringify({ calendar_span: span }));
+}
+
+function compactSelectedCategory() {
+  let select = document.querySelector("#compactTracker #categories, .cal-mini-tracker #categories, #homeCompact #categories");
+  return select ? select.value : null;
+}
+
+function initCompactTrackerUi(root) {
+  root = root || document.getElementById("compactTracker") || document;
+  initQuillEditors(root);
+  displayTags();
+  if (typeof possibleTags === "undefined" || !possibleTags || !possibleTags.length) {
+    getPossibleTags();
+  }
+}
+
+function compactReadFields() {
+  let root = document.getElementById("compactTracker") || document;
+  syncQuillInputs(root);
+  let commentEl = document.getElementById("comment");
+  let tagsEl = document.getElementById("tags");
+  let interruptedEl = document.getElementById("interrupted");
+  return {
+    comment: commentEl ? commentEl.value : "",
+    tags: tagsEl ? tagsEl.value : "",
+    interrupted: interruptedEl && interruptedEl.checked ? "Y" : "N",
+  };
+}
+
+function compactPayload(forceInterrupted) {
+  let curCat = document.getElementById("compactCurCat");
+  let currentCat = curCat ? curCat.value : null;
+  let nextCat = compactSelectedCategory();
+  let fields = compactReadFields();
+  let interrupted = forceInterrupted || fields.interrupted;
+  return {
+    category: nextCat,
+    category_display: currentCat || nextCat,
+    comment: fields.comment,
+    interrupted: interrupted,
+    project_id: "",
+    tags: fields.tags,
+  };
+}
+
+function refreshCompactPanel() {
+  let homeCompact = document.getElementById("homeCompact");
+  // Calendar grid must stay in sync with open/closed jobs.
+  if (!homeCompact && document.getElementById("homeCalendar")) {
+    window.location.reload();
+    return;
+  }
+  if (!homeCompact) {
+    window.location.reload();
+    return;
+  }
+
+  let xhr = new XMLHttpRequest();
+  xhr.open("GET", "../ajax/compact_panel.php?mode=full");
+  xhr.onload = function () {
+    if (xhr.status !== 200) {
+      displayMessage("Failed to refresh tracker");
+      return;
+    }
+    homeCompact.innerHTML = xhr.responseText;
+    let timerValue = document.getElementById("timerValue");
+    if (timerValue) {
+      window.__homeOpenJobStart = timerValue.value;
+    }
+    initCompactTrackerUi(homeCompact);
+    checkForOpenJob();
+  };
+  xhr.send();
+}
+
+function compactStartJob() {
+  let category = compactSelectedCategory();
+  if (!category) {
+    displayMessage("Select a category first");
+    return;
+  }
+  let data = {
+    category: category,
+    comment: "",
+    tags: "",
+    interrupted: "N",
+    project_id: "",
+  };
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", "../ajax/start_work.php");
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      displayMessage("Time Tracker started");
+      refreshCompactPanel();
+      toggleNavColor();
+    } else {
+      displayMessage("Failed to start timer");
+    }
+  };
+  xhr.send(JSON.stringify(data));
+}
+
+function compactStopJob() {
+  let data = compactPayload(null);
+  if (!data.category_display) {
+    displayMessage("No open job to stop");
+    return;
+  }
+  // Plain stop: keep interrupted from checkbox; do not open a new job unless checked.
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", "../ajax/stop_work.php");
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      displayMessage("Time Tracker stopped");
+      refreshCompactPanel();
+      toggleNavColor();
+    } else {
+      displayMessage("Failed to stop timer");
+    }
+  };
+  xhr.send(JSON.stringify(data));
+}
+
+function compactSwitchJob() {
+  let data = compactPayload("Y");
+  if (!data.category) {
+    displayMessage("Select a category to switch to");
+    return;
+  }
+  if (String(data.category) === String(data.category_display)) {
+    displayMessage("Pick a different category to switch");
+    return;
+  }
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", "../ajax/stop_work.php");
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      displayMessage("Switched job");
+      refreshCompactPanel();
+      toggleNavColor();
+    } else {
+      displayMessage("Failed to switch job");
+    }
+  };
+  xhr.send(JSON.stringify(data));
+}
+
+function focusCalendarEntry(entryId) {
+  let block = document.querySelector('.cal-block[data-entry-id="' + entryId + '"]');
+  if (!block) {
+    newWindow("entries.php?id=" + entryId);
+    return;
+  }
+  document.querySelectorAll(".cal-block.is-focused").forEach(function (el) {
+    el.classList.remove("is-focused");
+  });
+  block.classList.add("is-focused");
+  block.scrollIntoView({ behavior: "smooth", block: "center" });
 }

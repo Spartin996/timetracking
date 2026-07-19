@@ -54,12 +54,9 @@ $entries = getProjectEntries($id);
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?php echo $_SESSION['settings']['name']['value']; ?> - Edit Project</title>
   <link rel='stylesheet' href='../styles/styles.css'>
-  <!-- Include stylesheet for Quill -->
-  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+  <?php echo quillAssets(); ?>
   <script src="../js/functions.js"></script>
   <script src="../js/projects.js"></script>
-  <!-- Include the Quill library -->
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 
 </head>
 <body>
@@ -99,7 +96,7 @@ $entries = getProjectEntries($id);
     <p><?php echo $steps_incomplete; ?> Left to Complete</p>
 
     <!-- Create the editor container -->
-    <div id="editor">
+    <div id="editor" class="quill-full-editor">
       <?php echo $project_desc ?>
     </div>
 
@@ -143,7 +140,5 @@ $entries = getProjectEntries($id);
 
   //add the entries to the window
   initializeFloatingWindow();
-  // set the possible tags
-    let possibleTags = [];
 </script>
 </html>

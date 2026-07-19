@@ -1,8 +1,9 @@
 <?php
 
 // Database Connect
-// copy this file up one directory, change the name to config.php and update the User, Pass, DB as needed
-// you can also change the timezone here if needed
+// Optional manual setup: copy this file up one directory as config.php and update the values.
+// Prefer opening the app and using install.php, which writes config.php for you.
+// You can also change the timezone here if needed.
 
 $dbhost = "localhost";
 $dbuser = "root";

@@ -52,11 +52,11 @@ check_settings();
 
   <h3>Installation & Setup</h3>
   <ol>
-    <li>Download and install XAMPP or a similar LAMP/WAMP stack.</li>
-    <li>Place the Time Tracking application files in the web server's root directory (e.g., htdocs for XAMPP).</li>
-    <li>Configure the database connection settings in the configuration file (config.php).</li>
-    <li>Create a MySQL database and import the provided SQL schema.</li>
-    <li>Access the application via your web browser (e.g., http://localhost/timetracking).</li>
+    <li>Download and install XAMPP, Laragon, or a similar LAMP/WAMP stack.</li>
+    <li>Place the Time Tracking application folder in the web server root (e.g., htdocs or www).</li>
+    <li>Open the app in your browser (e.g., http://localhost/timetracking) and complete the installer form.</li>
+    <li>The installer writes config.php, creates the MySQL database if needed, and applies the schema.</li>
+    <li>Later schema updates: add a new file under sql/ (e.g., V2.3_something.sql); the next page load applies it.</li>
   </ol>
 
 

@@ -103,6 +103,7 @@ if (isset($_GET["hasBeenSub"])) {
 <head>
   <title><?php echo $_SESSION['settings']['name']['value']; ?> - Edit Categories</title>
   <link rel='stylesheet' href='../styles/styles.css'>
+  <?php showTheme(); ?>
   <script src="../js/functions.js"></script>
 </head>
 

@@ -1,4 +1,4 @@
-/* Colour variables temp */
+/* Colour variables — overridden by showTheme() from settings */
 :root {
   --primary-background: #7e471b;
   --secondary-background: #bd760d;
@@ -6,16 +6,30 @@
   --neutral-white: #FFFFFF;
   --neutral-gray: #999999;
   --neutral-active: #f0ec2b;
+  --page-background: #faf8f5;
+  --text-color: #2c2416;
+  --border-color: #d0c4b4;
+  --on-primary: #ffffff;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+  }
+}
+
+[data-theme="light"] {
+  color-scheme: light;
 }
 
 #header {
   background-image: url("../images/Bar.jpg");
 }
-
-/* Colour variables temp */
-
-
-
 
 * {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -27,6 +41,104 @@ body {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+  background-color: var(--page-background);
+  color: var(--text-color);
+}
+
+/* Form controls follow theme surfaces (important in dark mode) */
+input[type="text"],
+input[type="search"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="url"],
+input[type="tel"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="time"],
+input[type="color"],
+textarea,
+select {
+  background-color: var(--neutral-white);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 6px 8px;
+  accent-color: var(--primary-background);
+  color-scheme: light dark;
+}
+
+select {
+  background-color: var(--neutral-white);
+  color: var(--text-color);
+}
+
+select option {
+  background-color: var(--neutral-white);
+  color: var(--text-color);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--primary-background);
+  color-scheme: light dark;
+  width: 1.05em;
+  height: 1.05em;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--neutral-gray);
+  opacity: 1;
+}
+
+input[type="text"]:focus,
+input[type="search"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="url"]:focus,
+input[type="tel"]:focus,
+input[type="datetime-local"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+textarea:focus,
+select:focus,
+#addTags:focus {
+  outline: 2px solid var(--secondary-background);
+  outline-offset: 1px;
+  border-color: var(--secondary-background);
+}
+
+#addTags,
+input#addTags {
+  background-color: var(--neutral-white);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+#divTags ul.tags {
+  background-color: var(--neutral-white);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+button,
+input[type="submit"],
+input[type="button"] {
+  background-color: var(--primary-background);
+  color: var(--on-primary);
+  border: 1px solid var(--primary-background);
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
+  background-color: var(--secondary-background);
+  border-color: var(--secondary-background);
 }
 
 .container {
@@ -46,7 +158,7 @@ h2 {
 }
 
 h1 {
-  color: var(--neutral-white);
+  color: var(--on-primary);
 }
 
 #header {
@@ -63,11 +175,51 @@ h1 {
 nav {
   display: flex;
   justify-content: space-around;
+  align-items: center;
   background-color: var(--primary-background);
   padding: 5px;
   border-radius: 5px;
   margin-top: 10px;
-  overflow: hidden;
+  overflow: visible;
+  width: 100%;
+  max-width: 960px;
+  box-sizing: border-box;
+}
+
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 8px;
+  margin: 0;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.nav-hamburger:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: transparent;
+}
+
+.nav-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--on-primary);
+  border-radius: 1px;
+  padding: 0;
+}
+
+.nav-links {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex: 1 1 auto;
+  width: 100%;
 }
 
 nav a, nav span {
@@ -76,19 +228,20 @@ nav a, nav span {
   padding-left: 30px;
   padding-right: 30px;
   text-decoration: none;
-  color: var(--neutral-white);
+  color: var(--on-primary);
   flex-wrap: nowrap;
   align-items: center;
 }
 
 nav a:hover, nav span:hover {
   text-decoration: underline;
-  text-decoration-color: var(--neutral-white);
+  text-decoration-color: var(--on-primary);
 }
 
 .dropdown1, .dropdown2 {
   float: left;
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
 }
 
 .dropdown1_content, .dropdown2_content {
@@ -97,7 +250,7 @@ nav a:hover, nav span:hover {
   background-color: var(--primary-background);
   border-radius: 5px;
   min-width: 150px;
-  z-index: 1;
+  z-index: 2;
   box-shadow: 0px 8px 16px 0px var(--neutral-gray);
 }
 
@@ -106,6 +259,51 @@ nav a:hover, nav span:hover {
 }
 
 .dropdown2:hover .dropdown2_content{
+  display: block;
+}
+
+/* Compact home: collapse main nav behind hamburger */
+.home-view-compact nav {
+  max-width: 520px;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 4px 8px;
+}
+
+.home-view-compact .nav-hamburger {
+  display: flex;
+  align-self: center;
+}
+
+.home-view-compact .nav-links {
+  display: none;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  padding: 4px 0 8px;
+}
+
+.home-view-compact nav.is-open .nav-links {
+  display: flex;
+}
+
+.home-view-compact .nav-links > a,
+.home-view-compact .nav-links > .dropdown1 > span,
+.home-view-compact .nav-links > .dropdown2 > span {
+  padding: 10px 12px;
+}
+
+.home-view-compact .dropdown1_content,
+.home-view-compact .dropdown2_content {
+  position: static;
+  box-shadow: none;
+  min-width: 0;
+  padding-left: 12px;
+}
+
+.home-view-compact .dropdown1:hover .dropdown1_content,
+.home-view-compact .dropdown2:hover .dropdown2_content {
   display: block;
 }
 
@@ -134,21 +332,22 @@ nav a:hover, nav span:hover {
   padding: 10px;
   border-radius: 5px;
   background-color: var(--primary-background);
-  color: var(--neutral-white);
+  color: var(--on-primary);
 }
 
 #startStop input[type=submit]:hover {
   padding: 10px;
   background-color: var(--secondary-background);
   border-radius: 5px;
-  color: var(--neutral-white);
+  color: var(--on-primary);
 }
 
 table {
-  border: 2px solid var(--neutral-gray);
+  border: 2px solid var(--border-color);
   border-radius: 5px;
   border-collapse: collapse;
   margin: 10px;
+  background-color: var(--neutral-white);
 }
 
 tr:hover {
@@ -157,7 +356,7 @@ tr:hover {
 
 td,
 th {
-  border: 1px solid var(--neutral-gray);
+  border: 1px solid var(--border-color);
   padding: 5px;
 }
 
@@ -171,14 +370,37 @@ th {
   max-width: 90%;
 }
 
-.manEditEntry div,
-.manEditCats div,
-.filterEntry div {
+/* Only style form rows — not Quill/internal nested divs */
+.manEditEntry > div,
+.manEditCats > div,
+.filterEntry > div {
   display: flex;
   justify-content: space-around;
   flex-wrap: wrap;
   align-items: center;
   margin: 10px;
+  gap: 8px;
+}
+
+.manEditEntry > div:has(.quill-compact-wrap),
+.manEditCats > div:has(.quill-compact-wrap),
+.filterEntry > div:has(.quill-compact-wrap),
+#trackerWindow .form-group:has(.quill-compact-wrap),
+#startStop form > *:has(.quill-compact-wrap) {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.manEditEntry .quill-compact-wrap,
+.manEditCats .quill-compact-wrap,
+.filterEntry .quill-compact-wrap,
+#trackerWindow .quill-compact-wrap,
+#startStop .quill-compact-wrap {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 ul.tags li:hover {
@@ -276,4 +498,700 @@ div.tags {
   padding: 10px;
   border-radius: 5px;
   box-shadow: 2px 2px 10px var(--neutral-gray);
+}
+
+/* Full project Quill editor */
+.quill-full-editor.ql-container,
+#editor.ql-container {
+  min-height: 220px;
+}
+
+/* Compact Quill editors (comments) — smaller than the project editor */
+.quill-compact-wrap {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  background: var(--neutral-white);
+  color: var(--text-color);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.quill-compact-wrap .ql-toolbar.ql-snow {
+  display: block;
+  padding: 4px;
+  border: 1px solid var(--border-color);
+  border-bottom: 0;
+  background-color: var(--neutral-white);
+}
+
+.quill-compact-wrap .ql-toolbar.ql-snow .ql-formats {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 4px 8px 4px 0;
+}
+
+.quill-compact-wrap .ql-toolbar.ql-snow .ql-stroke {
+  stroke: var(--text-color);
+}
+
+.quill-compact-wrap .ql-toolbar.ql-snow .ql-fill {
+  fill: var(--text-color);
+}
+
+.quill-compact-wrap .ql-toolbar.ql-snow .ql-picker {
+  color: var(--text-color);
+}
+
+.quill-compact-wrap .ql-container.ql-snow {
+  display: block;
+  border: 1px solid var(--border-color);
+  background-color: var(--neutral-white);
+  font-size: 13px;
+  min-height: 88px;
+  max-height: 140px;
+}
+
+.quill-compact-wrap .ql-editor {
+  display: block;
+  min-height: 88px;
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 8px 10px;
+  color: var(--text-color);
+  background-color: var(--neutral-white);
+}
+
+.quill-compact-wrap .ql-editor.ql-blank::before {
+  font-style: normal;
+  color: var(--neutral-gray);
+  left: 10px;
+  right: 10px;
+}
+
+/* Keep Quill internals out of form flex layouts */
+.quill-compact-wrap div {
+  justify-content: initial;
+  flex-wrap: initial;
+  align-items: initial;
+  margin: 0;
+}
+
+/* Full project Quill also follows theme surfaces */
+#editor.ql-container,
+.quill-full-editor.ql-container {
+  background-color: var(--neutral-white);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.ql-toolbar.ql-snow {
+  background-color: var(--neutral-white);
+  border-color: var(--border-color);
+}
+
+.ql-toolbar.ql-snow .ql-stroke {
+  stroke: var(--text-color);
+}
+
+.ql-toolbar.ql-snow .ql-fill {
+  fill: var(--text-color);
+}
+
+.ql-toolbar.ql-snow .ql-picker {
+  color: var(--text-color);
+}
+
+.ql-editor {
+  color: var(--text-color);
+  background-color: var(--neutral-white);
+}
+
+/* ---- Home view switcher ---- */
+.home-view-switcher,
+.cal-span-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin: 12px 10px 8px;
+}
+
+.home-view-btn {
+  appearance: none;
+  border: 1px solid var(--border-color);
+  background: var(--neutral-white);
+  color: var(--text-color);
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.home-view-btn:hover {
+  background: var(--secondary-background);
+  color: var(--on-primary);
+  border-color: var(--secondary-background);
+}
+
+.home-view-btn.is-active {
+  background: var(--primary-background);
+  color: var(--on-primary);
+  border-color: var(--primary-background);
+}
+
+/* ---- Compact home ---- */
+.home-compact {
+  max-width: 520px;
+  margin: 0 auto 24px;
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.compact-tracker,
+.cal-mini-tracker .compact-tracker {
+  background: var(--neutral-white);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.compact-active-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.compact-cat-name {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.compact-timer {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.25rem;
+}
+
+.compact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.compact-actions select {
+  font-size: 16px;
+  padding: 8px;
+  border-radius: 4px;
+  max-width: 100%;
+}
+
+.compact-switch-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 auto;
+}
+
+.compact-btn {
+  appearance: none;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 14px;
+  font-size: 15px;
+  cursor: pointer;
+  background: var(--primary-background);
+  color: var(--on-primary);
+}
+
+.compact-btn:hover {
+  background: var(--secondary-background);
+}
+
+.compact-btn-stop {
+  background: var(--text-color);
+  color: var(--neutral-white);
+}
+
+.compact-btn-switch {
+  background: var(--secondary-background);
+  color: var(--on-primary);
+}
+
+.compact-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 8px 0 12px;
+  width: 100%;
+}
+
+.compact-field label {
+  display: inline-block;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.compact-field.compact-interrupted label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+.compact-tracker .quill-compact-wrap {
+  width: 100%;
+  max-width: 100%;
+}
+
+.compact-tracker .ql-editor {
+  min-height: 72px;
+}
+
+.compact-tracker .tags input[type="text"] {
+  width: min(100%, 220px);
+  padding: 6px 8px;
+  font-size: 14px;
+}
+
+.compact-recent h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.compact-recent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--neutral-white);
+}
+
+.compact-recent-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 2px 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+}
+
+.compact-recent-item:last-child {
+  border-bottom: none;
+}
+
+.compact-recent-item:hover {
+  background: var(--neutral-active);
+}
+
+.compact-recent-cat {
+  font-weight: 600;
+  grid-column: 1;
+}
+
+.compact-recent-mins {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.compact-recent-time {
+  grid-column: 1;
+  font-size: 0.85rem;
+  color: var(--neutral-gray);
+}
+
+.compact-recent-empty {
+  padding: 12px;
+  color: var(--neutral-gray);
+}
+
+.badge-interrupted {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 5px;
+  font-size: 0.75rem;
+  border-radius: 3px;
+  background: var(--active-background);
+  color: var(--text-color);
+}
+
+/* ---- Calendar home ---- */
+.home-calendar {
+  padding: 0 10px 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.cal-mini-tracker {
+  max-width: 640px;
+  margin: 0 auto 12px;
+}
+
+.cal-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 16px;
+  margin-bottom: 12px;
+}
+
+.cal-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.cal-nav-btn {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--neutral-white);
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.cal-nav-btn:hover {
+  background: var(--secondary-background);
+  color: var(--on-primary);
+  border-color: var(--secondary-background);
+}
+
+.cal-heading {
+  margin: 0;
+  font-size: 1.15rem;
+  width: 100%;
+  text-align: center;
+}
+
+.cal-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: 14px;
+  align-items: start;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  background: var(--neutral-white);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+  min-height: 480px;
+}
+
+.cal-gutter {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border-color);
+  background: var(--page-background);
+}
+
+.cal-gutter-hour {
+  flex: 1 1 0;
+  min-height: 28px;
+  position: relative;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.7rem;
+  color: var(--neutral-gray);
+}
+
+.cal-gutter-hour.is-sub {
+  min-height: 22px;
+  font-size: 0.62rem;
+  color: var(--neutral-gray);
+  opacity: 0.85;
+}
+
+.cal-gutter-hour.is-hour {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.cal-gutter-hour span {
+  position: absolute;
+  top: -0.5em;
+  right: 4px;
+}
+
+.cal-grid-day .cal-gutter-hour {
+  min-height: 28px;
+}
+
+.cal-grid-day .cal-gutter-hour.is-sub span {
+  opacity: 0.75;
+}
+
+.cal-days {
+  display: grid;
+  min-width: 0;
+}
+
+.cal-grid-week .cal-days {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.cal-grid-day .cal-days {
+  grid-template-columns: 1fr;
+}
+
+.cal-grid-day {
+  min-height: 0;
+}
+
+.cal-grid-day .cal-block {
+  font-size: 0.8rem;
+  padding: 4px 6px;
+}
+
+.cal-grid-day .cal-block-title {
+  white-space: normal;
+}
+
+.cal-day {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-right: 1px solid var(--border-color);
+}
+
+.cal-day:last-child {
+  border-right: none;
+}
+
+.cal-day-head {
+  padding: 6px 4px;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--page-background);
+}
+
+.cal-day.is-today .cal-day-head {
+  background: var(--active-background);
+  color: var(--text-color);
+}
+
+.cal-day-body {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 420px;
+}
+
+.cal-grid-day .cal-day-body {
+  /* Height set inline from slot count (default 7:30–17:30 = 40 × 28px) */
+  min-height: 1120px;
+}
+
+.cal-hour-slot {
+  flex: 1 1 0;
+  border-bottom: 1px solid var(--border-color);
+  opacity: 0.55;
+}
+
+.cal-grid-day .cal-hour-slot {
+  min-height: 28px;
+  flex: 0 0 28px;
+  border-bottom-color: color-mix(in srgb, var(--border-color) 55%, transparent);
+}
+
+.cal-grid-day .cal-hour-slot.is-hour {
+  border-bottom-color: var(--border-color);
+  opacity: 0.75;
+}
+
+.cal-day-events {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cal-block {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  pointer-events: auto;
+  border: none;
+  border-radius: 3px;
+  padding: 2px 4px;
+  overflow: hidden;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  opacity: 0.92;
+  z-index: 1;
+}
+
+.cal-block:hover,
+.cal-block.is-focused {
+  opacity: 1;
+  z-index: 3;
+  outline: 2px solid var(--active-background);
+}
+
+.cal-block.is-interrupted {
+  box-shadow: inset 0 0 0 2px var(--active-background);
+}
+
+.cal-block.is-open {
+  outline: 1px dashed #fff;
+}
+
+.cal-block-title {
+  display: block;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal-block-meta,
+.cal-block-comment,
+.cal-flag {
+  display: block;
+  opacity: 0.95;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal-flag {
+  font-weight: 600;
+}
+
+.cal-gap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 4px,
+    rgba(0, 0, 0, 0.08) 4px,
+    rgba(0, 0, 0, 0.08) 8px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cal-followups {
+  background: var(--neutral-white);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.cal-followups h3 {
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+}
+
+.followup-section {
+  margin-bottom: 14px;
+}
+
+.followup-section h4 {
+  margin: 0 0 6px;
+  font-size: 0.9rem;
+}
+
+.followup-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.followup-list li {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.followup-list li:last-child {
+  border-bottom: none;
+}
+
+.followup-list a,
+.followup-list button {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--primary-background);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: none;
+}
+
+.followup-list a:hover,
+.followup-list button:hover {
+  color: var(--secondary-background);
+  text-decoration: underline;
+}
+
+.followup-meta {
+  font-size: 0.8rem;
+  color: var(--neutral-gray);
+}
+
+.followup-empty {
+  margin: 0;
+  color: var(--neutral-gray);
+  font-size: 0.9rem;
+}
+
+.followup-gap-label {
+  font-weight: 600;
+}
+
+@media (max-width: 860px) {
+  .cal-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cal-grid-week {
+    overflow-x: auto;
+  }
+
+  .cal-grid-week .cal-days {
+    min-width: 560px;
+  }
+
+  .cal-day-body {
+    min-height: 360px;
+  }
+}
+
+@media (max-width: 520px) {
+  .home-compact {
+    max-width: 100%;
+  }
+
+  .compact-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .compact-btn {
+    width: 100%;
+  }
 }

@@ -10,21 +10,19 @@ session_start();
 
 check_settings();
 
-//add the theme
-showTheme();
+$id = issetrequest("id");
 
-$id = issetget("id");
-
-//Form is submitted, GET Variables
-if (isset($_GET["hasBeenSub"])) {
-  $categories = issetget("categories");
-  $start_time = displayTime(issetget("start_time"), "sql");
-  $end_time = displayTime(issetget("end_time"), "sql");
-  $comment = issetget("comment");
-  $interrupted = issetget("interrupted", "N");
+//Form is submitted
+if (issetrequest("hasBeenSub")) {
+  $categories = issetrequest("categories");
+  $start_time = displayTime(issetrequest("start_time"), "sql");
+  $end_time = displayTime(issetrequest("end_time"), "sql");
+  $comment = issetrequest("comment");
+  $interrupted = issetrequest("interrupted", "N");
+  $follow_up = issetrequest("follow_up", "N");
   $minutes = timeBetween($end_time, $start_time);
-  $tags = issetget("tags");
-  $project_id = issetget("project_id", NULL);
+  $tags = issetrequest("tags");
+  $project_id = issetrequest("project_id", NULL);
   
    // if ID must be a edit
   if ($id != "") {
@@ -38,6 +36,7 @@ if (isset($_GET["hasBeenSub"])) {
       }
       $sql .= ", `minutes` = '" . $minutes . "'
       , `interrupted` = '" . $interrupted . "'
+      , `follow_up` = '" . $follow_up . "'
       , `comment` = '" . $comment . "'
       , `tags` = '" . $tags . "'";
       //allow for a project to be added or removed
@@ -50,12 +49,13 @@ if (isset($_GET["hasBeenSub"])) {
   } else {
     //No ID, insert
     $sql = "INSERT INTO `entries`
-      (`id`, `categories_id`, `start_time`, `end_time`, `minutes`, `interrupted`, `comment`, `tags`)
+      (`id`, `categories_id`, `start_time`, `end_time`, `minutes`, `interrupted`, `follow_up`, `comment`, `tags`, `project_id`)
       VALUES (NULL, '" . $categories . "'
       , '" . $start_time . "'
       , '" . $end_time . "'
       , '" . $minutes . "'
       , '" . $interrupted . "'
+      , '" . $follow_up . "'
       , '" . $comment . "'
       , '" . $tags . "'";
       //allow for a project to be added or removed
@@ -84,11 +84,12 @@ if (isset($_GET["hasBeenSub"])) {
     $end_time = date('Y-m-d H:i:s', time());
     $minutes = issetget("minutes");
     $interrupted = issetget("interrupted", "N");
+    $follow_up = issetget("follow_up", "N");
     $comment = issetget("comment");
     $tags = issetget("tags");
     $project_id = issetget("project_id");
   } else {
-    $sql = "SELECT `id`, `categories_id`, `start_time`, `end_time`, `minutes`, `interrupted`, `comment`, `tags`, `project_id` 
+    $sql = "SELECT `id`, `categories_id`, `start_time`, `end_time`, `minutes`, `interrupted`, `follow_up`, `comment`, `tags`, `project_id` 
     FROM entries
     WHERE id = " . $id;
     $result = $conn->query($sql);
@@ -99,6 +100,7 @@ if (isset($_GET["hasBeenSub"])) {
     $end_time = $row["end_time"];
     $minutes = $row["minutes"];
     $interrupted = $row["interrupted"];
+    $follow_up = $row["follow_up"];
     $comment = $row["comment"];
     $tags = $row["tags"];
     $project_id = $row["project_id"];
@@ -119,11 +121,13 @@ if($end_time) {
 <head>
   <title><?php echo $_SESSION['settings']['name']['value']; ?> - Edit Entry</title>
   <link rel='stylesheet' href='../styles/styles.css'>
+  <?php showTheme(); ?>
+  <?php echo quillAssets(); ?>
   <script src="../js/functions.js"></script>
 </head>
 
 <body>
-  <form method="GET" action="entries.php" class="manEditEntry">
+  <form method="POST" action="entries.php" class="manEditEntry" onsubmit="syncQuillInputs(this)">
 
     <input name='hasBeenSub' type="hidden" value="submitted">
 
@@ -153,10 +157,15 @@ if($end_time) {
       <span>Were you interrupted: </span>
       <span id='interrupted'><input name='interrupted' type='checkbox' value="Y" <?php if($interrupted == "Y") { echo "checked";} ?>></span>
     </div>
+
+    <div>
+      <span>Needs follow-up: </span>
+      <span id='follow_up'><input name='follow_up' type='checkbox' value="Y" <?php if($follow_up == "Y") { echo "checked";} ?>></span>
+    </div>
     
     <div>
-      <label>Leave a comment?: </label>
-      <textarea name='comment' rows='4' cols='50'><?php echo $comment; ?></textarea>
+      <label for='comment-editor'>Leave a comment?: </label>
+      <?php echo quillEditorMarkup('comment', $comment); ?>
     </div>
 
     <div>
@@ -184,12 +193,8 @@ if($end_time) {
 <script>  
 displayTags();
 
-let possibleTags = [];
-
 getPossibleTags();
-
-
-
+initQuillEditors();
 
 </script>
 </html>

@@ -99,12 +99,7 @@ $checkboxes .= "<input type='hidden' name='numbercats' value='" . $i . "'>"
 <script>  
 displayTags();
 
-let possibleTags = [];
-
 getPossibleTags();
-
-
-
 
 </script>
 
