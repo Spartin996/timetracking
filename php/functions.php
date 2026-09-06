@@ -477,9 +477,24 @@ function timeBetween($end_time, $start_time)
   return $timespent;
 }
 
+/**
+ * Whether verbose logging (SQL and actions) is enabled.
+ * Defaults to off when the setting is missing or the session is not loaded.
+ */
+function loggingEnabled()
+{
+  $value = settingValue('log_all', 'N');
+  $value = strtoupper((string) $value);
+  return $value === 'Y' || $value === 'YES' || $value === 'ON' || $value === '1';
+}
+
 //function to log the action that is taken including any errors.
 function logAction($var, $mode = 'both')
 {
+  if (!loggingEnabled()) {
+    return;
+  }
+
   if ($mode != 'file'){
     $var = htmlspecialchars($var, ENT_QUOTES);
     echo "<script>console.log('" . $var . "'); </script>";
@@ -852,7 +867,9 @@ function check_settings() {
   }
 
   // Reload when new preference keys appear after a migration.
-  if (!isset($_SESSION['settings']['theme_mode']) || !isset($_SESSION['settings']['home_view'])) {
+  if (!isset($_SESSION['settings']['theme_mode'])
+    || !isset($_SESSION['settings']['home_view'])
+    || !isset($_SESSION['settings']['log_all'])) {
     $_SESSION['settings'] = getSettings();
   }
 }

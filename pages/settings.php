@@ -21,6 +21,7 @@ if (isset($_POST["hasBeenSub"])) {
   //get the settings from the form
   $home_view = normalizeHomeView(issetpost("home_view", "standard"));
   $calendar_span = normalizeCalendarSpan(issetpost("calendar_span", "week"));
+  $log_all = (issetpost("log_all", "N") === "Y") ? "Y" : "N";
 
   $new_settings = array(
     "name" => issetpost("name"),
@@ -28,6 +29,7 @@ if (isset($_POST["hasBeenSub"])) {
     "date_view" => issetpost("date_view"),
     "home_view" => $home_view,
     "calendar_span" => $calendar_span,
+    "log_all" => $log_all,
     "theme_mode" => $theme_mode,
     "primary_background" => issetpost("primary_background"),
     "secondary_background" => issetpost("secondary_background"),
@@ -84,6 +86,7 @@ function colourField($name, $label, $previewTextColor = '#333')
 $theme_mode = settingValue('theme_mode', 'system');
 $home_view = normalizeHomeView(settingValue('home_view', 'standard'));
 $calendar_span = normalizeCalendarSpan(settingValue('calendar_span', 'week'));
+$log_all = (settingValue('log_all', 'N') === 'Y') ? 'Y' : 'N';
 
 ?>
 
@@ -145,6 +148,15 @@ $calendar_span = normalizeCalendarSpan(settingValue('calendar_span', 'week'));
         <option value="day" <?php echo ($calendar_span === 'day') ? 'selected' : ''; ?>>Day</option>
         <option value="week" <?php echo ($calendar_span === 'week') ? 'selected' : ''; ?>>Week</option>
       </select>
+    </div>
+
+    <h3>Logging</h3>
+    <p>When enabled, every SQL query and action is written to <code>log/logfile.log</code>. Leave this off unless you are diagnosing a problem; it is slow on IIS.</p>
+    <div>
+      <label for='log_all'>
+        <input name='log_all' id='log_all' type='checkbox' value='Y'<?php echo ($log_all === 'Y') ? ' checked' : ''; ?>>
+        Log all SQL and actions
+      </label>
     </div>
 
     <h3>Theme Mode</h3>

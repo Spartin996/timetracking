@@ -1,7 +1,7 @@
 <?php
 
 // This is the first landing page for the software.
-// It checks that the db is in place and working, then redirects to the app.
+// It checks that the db is in place, applies pending schema migrations, then redirects to the app.
 
 if (!file_exists(__DIR__ . '/config.php')) {
   header('Location: ./install.php');
