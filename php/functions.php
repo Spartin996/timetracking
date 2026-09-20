@@ -159,37 +159,175 @@ if ($type == "entries" || $type == "curEntries") {
 
 
 
-//function to show all entries for a period for a category in a table
-function showEntriesTable($dateStart, $dateEnd, $categories, $order = "asc")
+/**
+ * Inclusive SQL datetime bound. Date-only values become start or end of day.
+ */
+function normalizeSqlDateTime($value, $endOfDay = false)
+{
+  $value = trim((string) $value);
+  if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+    return $endOfDay ? ($value . ' 23:59:59') : ($value . ' 00:00:00');
+  }
+  return $value;
+}
+
+function normalizeEntryOrder($order)
+{
+  return (strtolower((string) $order) === 'desc') ? 'DESC' : 'ASC';
+}
+
+/**
+ * Load entries for a datetime range in one query.
+ *
+ * @return array<int, array>
+ */
+function fetchEntries($dateStart, $dateEnd, $categories = 'all', $order = 'asc')
 {
   global $conn;
-  //if categories is all get all ID from the categories table
-  if ($categories == "all") {
-    $categories = getAllCategoriesCSV();
-  }
-  $categories = implode(',', array_filter(array_map('intval', explode(',', rtrim((string) $categories, ',')))));
+  $dateStart = $conn->real_escape_string(normalizeSqlDateTime($dateStart, false));
+  $dateEnd = $conn->real_escape_string(normalizeSqlDateTime($dateEnd, true));
+  $orderSql = normalizeEntryOrder($order);
 
+  $categorySql = '';
+  if ($categories !== 'all' && $categories !== null && $categories !== '') {
+    $ids = implode(',', array_filter(array_map('intval', explode(',', rtrim((string) $categories, ',')))));
+    if ($ids === '') {
+      return [];
+    }
+    $categorySql = ' AND categories_id IN (' . $ids . ')';
+  }
+
+  $sql = "SELECT entries.id, categories_id, display_name, categories.seq, start_time, end_time,
+      entries.minutes, interrupted, follow_up, comment, tags, project_id,
+      projects.title, projects.title AS project_title
+    FROM entries
+    LEFT JOIN categories ON entries.categories_id = categories.id
+    LEFT JOIN projects ON entries.project_id = projects.id
+    WHERE start_time >= '" . $dateStart . "'
+      AND start_time <= '" . $dateEnd . "'"
+    . $categorySql . "
+    ORDER BY start_time " . $orderSql;
+
+  $result = $conn->query($sql);
+  logAction("Ran SQL on DB from fetchEntries, " . $sql, "file");
+
+  $rows = [];
+  if ($result) {
+    while ($row = mysqli_fetch_assoc($result)) {
+      $rows[] = $row;
+    }
+  }
+  return $rows;
+}
+
+/**
+ * Keep entries whose start_time falls in an inclusive datetime range.
+ *
+ * @param array<int, array> $entries
+ * @return array<int, array>
+ */
+function entriesInRange(array $entries, $dateStart, $dateEnd)
+{
+  $dateStart = normalizeSqlDateTime($dateStart, false);
+  $dateEnd = normalizeSqlDateTime($dateEnd, true);
+  $matched = [];
+  foreach ($entries as $row) {
+    $start = $row['start_time'] ?? '';
+    if ($start >= $dateStart && $start <= $dateEnd) {
+      $matched[] = $row;
+    }
+  }
+  return $matched;
+}
+
+function entryProjectTitle(array $row)
+{
+  if (isset($row['title']) && $row['title'] !== '') {
+    return $row['title'];
+  }
+  return $row['project_title'] ?? '';
+}
+
+/**
+ * Summary table from already-fetched entry rows (no extra SQL).
+ *
+ * @param array<int, array> $entries
+ */
+function renderEntriesSummary(array $entries, $dateStart, $dateEnd)
+{
+  $table = "<table id=summary><tr onclick=tableToCSV(this)><th>Category</th><th>Time Spent</th></tr>";
+
+  $byCategory = [];
+  $allMinutes = 0;
+  $interrupted = 0;
+  $minStart = null;
+  $maxEnd = null;
+
+  foreach ($entries as $row) {
+    $catId = (int) ($row['categories_id'] ?? 0);
+    if (!isset($byCategory[$catId])) {
+      $byCategory[$catId] = [
+        'display_name' => $row['display_name'] ?? '',
+        'minutes' => 0,
+        'seq' => (int) ($row['seq'] ?? 0),
+      ];
+    }
+    $minutes = (int) ($row['minutes'] ?? 0);
+    $byCategory[$catId]['minutes'] += $minutes;
+    $allMinutes += $minutes;
+    if (($row['interrupted'] ?? '') === 'Y') {
+      $interrupted++;
+    }
+    $start = $row['start_time'] ?? null;
+    if ($start && ($minStart === null || $start < $minStart)) {
+      $minStart = $start;
+    }
+    $end = $row['end_time'] ?? null;
+    if ($end && ($maxEnd === null || $end > $maxEnd)) {
+      $maxEnd = $end;
+    }
+  }
+
+  uasort($byCategory, function ($a, $b) {
+    return $a['seq'] <=> $b['seq'];
+  });
+
+  foreach ($byCategory as $category) {
+    $table .= "<tr><td>" . $category['display_name'] . "</td><td>" . minutesToHours($category['minutes']) . "</td></tr>";
+  }
+
+  if ($entries !== []) {
+    $table .= "<tr><td><strong>ALL JOBS</strong></td><td>" . minutesToHours($allMinutes) . "</td></tr>";
+  }
+
+  $dayStart = substr(normalizeSqlDateTime($dateStart, false), 0, 10);
+  $dayEnd = substr(normalizeSqlDateTime($dateEnd, true), 0, 10);
+  if ($dayStart === $dayEnd) {
+    if (!$minStart) {
+      $minStart = date('Y-m-d H:i:s');
+    }
+    if (!$maxEnd) {
+      $maxEnd = date('Y-m-d H:i:s');
+    }
+    $totalTime = (strtotime($maxEnd) - strtotime($minStart)) / 60;
+    $untracked = $totalTime - $allMinutes;
+    $table .= "<tr><td>Untracked</td><td>" . minutesToHours($untracked) . "</td></tr>";
+  }
+
+  $table .= "<tr><td><strong>Interrupted</strong></td><td>" . $interrupted . "</td></tr>";
+  $table .= "</table>";
+  return $table;
+}
+
+/**
+ * Full entries table from already-fetched rows (no extra SQL).
+ *
+ * @param array<int, array> $entries
+ */
+function renderEntriesTable(array $entries)
+{
   $table = "<table id=showEntries><tr onclick=tableToCSV(this)><th>Category</th><th>Start Time</th><th>End Time</th><th>Time Taken</th><th>Interrupted</th><th>Comments</th><th>Tags</th><th>Project</th></tr>";
-  if ($categories === '') {
-    $table .= "</table>";
-    return $table;
-  }
-
-  $sql = "SELECT entries.id, categories_id, display_name, start_time, end_time, entries.minutes, `interrupted`, `comment`, `tags`, `project_id`, projects.title 
-  FROM entries
-  LEFT JOIN categories
-  ON entries.categories_id = categories.id
-  LEFT JOIN projects
-  ON entries.project_id = projects.id
-  
-    WHERE start_time > '" . $dateStart . "'
-    AND start_time < '" . $dateEnd . "'
-    AND categories_id IN (" . $categories . ")
-    ORDER BY start_time " . $order;
-  
-    $result = $conn->query($sql);
-  logAction("Ran SQL on DB from ShowEntriesTable, " . $sql, "file");
-  while ($row = mysqli_fetch_array($result)) {
+  foreach ($entries as $row) {
     $table .= "<tr onclick='newWindow(`entries.php?id=" . $row['id'] . "`)' >
     <td>" . $row['display_name'] . "</td>
     <td>" . displayTime($row['start_time'], setting('date_view')) . "</td>
@@ -198,18 +336,22 @@ function showEntriesTable($dateStart, $dateEnd, $categories, $order = "asc")
     <td>" . $row['interrupted'] . "</td>
     <td>" . $row['comment'] . "</td>
     <td>" . dislpayTags($row['tags']) . "</td>
-    <td>" . $row['title'] . "</td>
+    <td>" . entryProjectTitle($row) . "</td>
     </tr>";
   }
-  //todo add tags to table with a cap at xxx length, skipped the cap for now.
-
   $table .= "</table>";
-
-
-  // add a summary at the top
-
-  //return it
   return $table;
+}
+
+function showEntriesFromRows(array $entries, $dateStart, $dateEnd)
+{
+  return renderEntriesSummary($entries, $dateStart, $dateEnd) . renderEntriesTable($entries);
+}
+
+//function to show all entries for a period for a category in a table
+function showEntriesTable($dateStart, $dateEnd, $categories, $order = "asc")
+{
+  return renderEntriesTable(fetchEntries($dateStart, $dateEnd, $categories, $order));
 }
 
 
@@ -278,89 +420,15 @@ function getAllCategoriesCSV() {
 //Generate a summary table
 function showEntriesSummary($dateStart, $dateEnd, $categories)
 {
-  global $conn;
-  if ($categories == "all") {
-    $categories = getAllCategoriesCSV();
-  }
-  $categories = array_filter(array_map('intval', explode(',', rtrim((string) $categories, ','))));
-
-  $table = "<table id=summary><tr onclick=tableToCSV(this)><th>Category</th><th>Time Spent</th></tr>";
-  foreach ($categories as $category) {
-    $displayName = '';
-    $minutes = '';
-
-    $sql = "SELECT id, display_name FROM categories WHERE id = " . $category;
-    $result = $conn->query($sql);
-    logAction("Ran SQL on DB, " . $sql, "file");
-    while ($row = mysqli_fetch_array($result)) {
-      $displayName = $row['display_name'];
-    }
-
-    $sql = "SELECT SUM(`minutes`) as Sum
-    FROM entries 
-    WHERE categories_id = " . $category . "
-    AND start_time >= '" . $dateStart . "'
-    AND start_time <= '" . $dateEnd . "'";
-    $result = $conn->query($sql);
-    logAction("Ran SQL on DB, " . $sql, "file");
-    while ($row = mysqli_fetch_array($result)) {
-      $minutes = $row['Sum'];
-    }
-    if ($minutes != "") {
-      $table .= "<tr><td>" . $displayName . "</td><td>" . minutesToHours($minutes) . "</td></tr>";
-    }
-  }
-
-
-
-  //add a summary to the bottom
-  $displayName = "<strong>ALL JOBS</strong>";
-
-  $sql = "SELECT SUM(`minutes`) as Sum
-    FROM entries 
-    WHERE start_time > '" . $dateStart . "'
-    AND start_time < '" . $dateEnd . "'";
-  $result = $conn->query($sql);
-  logAction("Ran SQL on DB, " . $sql, "file");
-  while ($row = mysqli_fetch_array($result)) {
-    $minutes = $row['Sum'];
-  }
-  if ($minutes != "") {
-    $table .= "<tr><td>" . $displayName . "</td><td>" . minutesToHours($minutes) . "</td></tr>";
-  }
-
-  //add a untracked row if it is a single day
-  if(substr($dateStart, 0, 10) == substr($dateEnd, 0, 10)){
-    $totalTime = getTimeWorked($dateStart);
-    $untracked = $totalTime - $minutes;
-
-    $table .= "<tr><td>Untracked</td><td>" . minutesToHours($untracked) . "</td></tr>";
-  }
-
-  //add interrupted count
-  $displayName = "<strong>Interrupted</strong>";
-
-  $sql = "SELECT count(`interrupted`) as Count
-    FROM entries 
-    WHERE start_time > '" . $dateStart . "'
-    AND start_time < '" . $dateEnd . "'
-    AND interrupted LIKE 'Y'";
-  $result = $conn->query($sql);
-  logAction("Ran SQL on DB, " . $sql, "file");
-  $row = mysqli_fetch_array($result);
-    $table .= "<tr><td>" . $displayName . "</td><td>" . $row['Count'] . "</td></tr>";
-
-  $table .= "</table>";
-  return $table;
+  return renderEntriesSummary(fetchEntries($dateStart, $dateEnd, $categories, 'asc'), $dateStart, $dateEnd);
 }
 
 //show a summary table and a full table
 //categories = all will get all categories and generate the reports
 function showEntries($dateStart, $dateEnd, $categories, $order = "asc")
 {
-  $return = showEntriesSummary($dateStart, $dateEnd, $categories);
-  $return .= showEntriesTable($dateStart, $dateEnd, $categories, $order);
-  return $return;
+  $entries = fetchEntries($dateStart, $dateEnd, $categories, $order);
+  return showEntriesFromRows($entries, $dateStart, $dateEnd);
 }
 
 //if a open job exists get the unix time for it

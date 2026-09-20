@@ -204,26 +204,7 @@ function renderCompactHome()
  */
 function getEntriesForRange($start, $end)
 {
-  global $conn;
-  $start = $conn->real_escape_string($start);
-  $end = $conn->real_escape_string($end);
-
-  $sql = "SELECT entries.id, categories_id, display_name, start_time, end_time, entries.minutes,
-      interrupted, follow_up, comment, tags, project_id, projects.title AS project_title
-    FROM entries
-    LEFT JOIN categories ON entries.categories_id = categories.id
-    LEFT JOIN projects ON entries.project_id = projects.id
-    WHERE start_time >= '{$start}'
-      AND start_time <= '{$end}'
-    ORDER BY start_time ASC";
-  $result = $conn->query($sql);
-  logAction("Ran SQL on DB, " . $sql, "file");
-
-  $rows = [];
-  while ($row = mysqli_fetch_assoc($result)) {
-    $rows[] = $row;
-  }
-  return $rows;
+  return fetchEntries($start, $end, 'all', 'asc');
 }
 
 /**

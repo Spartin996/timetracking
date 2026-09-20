@@ -64,15 +64,17 @@ $calendar_day = isset($_GET['day']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET
     <h2>Today</h2>
     <div id='todayEntries'>
       <?php
-      echo showEntries($start_date, $end_date, "all" , "desc");
+      $reportStart = getOldDate('14') . ' 00:00:00';
+      $entries14 = fetchEntries($reportStart, $end_date, 'all', 'desc');
+      $todayEntries = entriesInRange($entries14, $start_date, $end_date);
+      echo showEntriesFromRows($todayEntries, $start_date, $end_date);
       ?>
     </div>
 
     <h2>Last 14 Days</h2>
     <div id='yesterdayEntries'>
       <?php
-      $reportStart = getOldDate('14');
-      echo showEntries($reportStart, $end_date, "all", "desc");
+      echo showEntriesFromRows($entries14, $reportStart, $end_date);
       ?>
     </div>
   <?php } ?>
