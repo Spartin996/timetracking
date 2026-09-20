@@ -1,6 +1,6 @@
 <?php
 /**
- * Home page view helpers: Compact, Standard (via index), Calendar + follow-ups.
+ * Home page view helpers: Compact, Standard, Calendar + Split workspace.
  */
 
 /**
@@ -25,6 +25,21 @@ function normalizeCalendarSpan($span)
     return 'week';
   }
   return $span;
+}
+
+/**
+ * Entries pane width on the Split page (percent). Remainder goes to projects.
+ */
+function normalizeSplitPercent($value)
+{
+  $percent = (int) $value;
+  if ($percent < 20) {
+    return 20;
+  }
+  if ($percent > 80) {
+    return 80;
+  }
+  return $percent;
 }
 
 /**
@@ -195,6 +210,132 @@ function renderCompactHome()
     . compactTrackerMarkup()
     . compactRecentEntries()
     . "</div>";
+}
+
+/**
+ * Standard home: start/stop plus Today and Last 14 Days tables.
+ */
+function renderStandardHome($returnTo = null, $projectId = null)
+{
+  $dateSql = date('Y-m-d');
+  $startDate = displayTime($dateSql, 'sql');
+  $endDate = displayTime($dateSql . ' 23:59:59', 'sql');
+  $reportStart = getOldDate('14') . ' 00:00:00';
+  $entries14 = fetchEntries($reportStart, $endDate, 'all', 'desc');
+  $todayEntries = entriesInRange($entries14, $startDate, $endDate);
+
+  $html = "<div id='startStop'>" . startStopForm($returnTo, $projectId) . "</div>";
+  $html .= "<script>
+      document.querySelectorAll('#startStop form').forEach(function (form) {
+        form.addEventListener('submit', function () {
+          syncQuillInputs(form);
+        });
+      });
+      var interrupted = document.getElementById('interrupted');
+      var followUp = document.getElementById('follow_up');
+      if (interrupted && followUp) {
+        interrupted.addEventListener('change', function () {
+          if (interrupted.checked) {
+            followUp.checked = true;
+          }
+        });
+      }
+    </script>";
+  $html .= "<h2>Today</h2>";
+  $html .= "<div id='todayEntries'>" . showEntriesFromRows($todayEntries, $startDate, $endDate) . "</div>";
+  $html .= "<h2>Last 14 Days</h2>";
+  $html .= "<div id='yesterdayEntries'>" . showEntriesFromRows($entries14, $reportStart, $endDate) . "</div>";
+  return $html;
+}
+
+/**
+ * All open projects (not only those with remaining steps).
+ *
+ * @return array<int, array>
+ */
+function getOpenProjects()
+{
+  global $conn;
+  $sql = "SELECT id, title, steps_incomplete, steps_complete, steps
+    FROM projects
+    WHERE date_closed IS NULL
+    ORDER BY steps_incomplete DESC, title ASC";
+  $result = $conn->query($sql);
+  logAction("Ran SQL on DB, " . $sql, "file");
+
+  $rows = [];
+  if ($result) {
+    while ($row = mysqli_fetch_assoc($result)) {
+      $rows[] = $row;
+    }
+  }
+  return $rows;
+}
+
+/**
+ * Compact clickable list of open projects for the Split pane.
+ */
+function renderOpenProjectsList($selectedId = null)
+{
+  $selectedId = ($selectedId !== null && $selectedId !== '' && ctype_digit((string) $selectedId))
+    ? (string) (int) $selectedId
+    : '';
+  $projects = getOpenProjects();
+
+  if ($projects === []) {
+    return "<p class='split-project-empty'>No open projects.</p>";
+  }
+
+  $html = "<ul class='split-project-list'>";
+  foreach ($projects as $p) {
+    $pid = (string) (int) $p['id'];
+    $title = htmlspecialchars((string) $p['title'], ENT_QUOTES, 'UTF-8');
+    $left = (int) $p['steps_incomplete'];
+    $active = ($pid === $selectedId) ? ' is-active' : '';
+    $stepLabel = $left . ' step' . ($left === 1 ? '' : 's') . ' left';
+    $html .= "<li class='split-project-item{$active}' data-project-id='{$pid}'>";
+    $html .= "<button type='button' class='split-project-btn' onclick='loadSplitProject(\"{$pid}\")'>{$title}</button>";
+    $html .= "<span class='split-project-meta'>{$stepLabel}</span>";
+    $html .= "</li>";
+  }
+  $html .= "</ul>";
+  return $html;
+}
+
+/**
+ * Right-hand projects pane for Split.
+ */
+function renderSplitProjectsPane($selectedId = null)
+{
+  $hasSelected = ($selectedId !== null && $selectedId !== '' && ctype_digit((string) $selectedId));
+  $html = "<div class='split-projects-toolbar'>";
+  $html .= "<h2>Projects</h2>";
+  $html .= "<button type='button' class='home-view-btn' onclick='loadSplitProject(\"\")'>New project</button>";
+  $html .= "</div>";
+  $html .= "<div id='splitProjectList'>" . renderOpenProjectsList($selectedId) . "</div>";
+  $html .= "<div id='splitProjectEditor'>";
+  if ($hasSelected) {
+    $html .= projectEditorMarkup($selectedId);
+  } else {
+    $html .= "<p class='split-project-placeholder'>Select a project</p>";
+  }
+  $html .= "</div>";
+  return $html;
+}
+
+/**
+ * Standalone Split workspace: Standard entries + project editor.
+ */
+function renderSplitHome($projectId = null)
+{
+  $percent = normalizeSplitPercent(settingValue('split_percent', '50'));
+  $projects = 100 - $percent;
+  return "<div class='home-split-wrap'>"
+    . "<div class='home-split' id='homeSplit'"
+    . " style='--split-entries-fr: {$percent}fr; --split-projects-fr: {$projects}fr;'>"
+    . "<div class='split-pane split-entries'>" . renderStandardHome('split.php', $projectId) . "</div>"
+    . "<div class='split-pane split-projects'>" . renderSplitProjectsPane($projectId) . "</div>"
+    . "</div></div>";
 }
 
 /**

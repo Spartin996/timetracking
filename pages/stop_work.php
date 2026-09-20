@@ -10,15 +10,27 @@ include '../Database.php';
 $time = date('Y-m-d H:i:s', time());
 
 $comment = issetrequest('comment', 'NULL');
-$interrupted = issetrequest("interrupted", "N");
-$tags = issetrequest("tags");
+$interrupted = postedCheckboxY('interrupted');
+$follow_up = postedCheckboxY('follow_up');
+$tags = issetrequest('tags', '');
+$category = issetrequest('categories');
+$projectId = resolvePostedProjectId($comment, $category);
 
-//You were interrupted 
-//todo check this logic and move it below the update, while this works it is not the best way to do it
-//the only it works is because the select statement is getting the lowest id, while working this is not safe.
-if (isset($_POST['interrupted']) || isset($_GET['interrupted'])) {
+//Get the ID for the open job before inserting a follow-on interrupted job
+$sql = "SELECT id, start_time, end_time 
+FROM entries
+WHERE end_time IS NULL 
+Limit 1";
+$result = $conn->query($sql);
+logAction("Ran SQL on DB, " . $sql, "file");
+$row = mysqli_fetch_array($result);
+$entryId = $row['id'];
 
-  $category = issetrequest('categories');
+$timespent = timeBetween($time, $row['start_time']);
+
+//You were interrupted: open a new job after capturing the one being stopped
+if ($interrupted === 'Y') {
+
   if ($category === null || $category === '') {
     echo "ERROR! you forgot to select a category.<br> Return <a href=index.php>home</a>";
     exit;
@@ -33,27 +45,17 @@ logAction("Ran SQL on DB, " . $sql, "file");
 
 }
 
+$comment = $conn->real_escape_string((string) $comment);
+$tags = $conn->real_escape_string((string) $tags);
+$projectSql = ($projectId === null) ? 'NULL' : "'" . (int) $projectId . "'";
 
-
-//Get the ID for the open job
-$sql = "SELECT id, start_time, end_time 
-FROM entries
-WHERE end_time IS NULL 
-Limit 1";
+$sql = "UPDATE entries SET end_time = '" . $time . "', minutes = '" . $timespent . "', interrupted = '" . $interrupted . "', follow_up = '" . $follow_up . "', comment = '" . $comment . "', tags = '" . $tags . "', project_id = " . $projectSql . " WHERE id = " . $entryId;
 $result = $conn->query($sql);
 logAction("Ran SQL on DB, " . $sql, "file");
-$row = mysqli_fetch_array($result);
-$entryId = $row['id'];
 
-$timespent = timeBetween($time, $row['start_time']);
+if ($projectId !== null) {
+  UpdateTimeOnProject($projectId);
+}
 
-// Interrupted entries need a follow-up by default
-$follow_up = ($interrupted === 'Y') ? 'Y' : 'N';
-
-$sql = "UPDATE entries SET end_time = '" . $time . "', minutes = '" . $timespent . "', interrupted = '" . $interrupted . "', follow_up = '" . $follow_up . "', comment = '" . $comment . "', tags = '" . $tags . "' WHERE id = " . $entryId;
-$result = $conn->query($sql);
-logAction("Ran SQL on DB, " . $sql, "file");
-// go it index.php when done
-header("Location: index.php");
-
-
+header('Location: ' . safeReturnLocation());
+exit;

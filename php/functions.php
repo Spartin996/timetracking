@@ -51,16 +51,46 @@ function quillEditorMarkup($name, $content = '', $editorId = null)
 }
 
 
+/**
+ * Whitelisted return page after start/stop.
+ */
+function safeReturnLocation($fallback = 'index.php')
+{
+  $allowed = ['index.php', 'split.php'];
+  $page = basename((string) issetrequest('return_to', $fallback));
+  if (!in_array($page, $allowed, true)) {
+    $page = $fallback;
+  }
+  if ($page === 'split.php') {
+    $project = issetrequest('return_project', '');
+    if (preg_match('/^\d+$/', (string) $project)) {
+      return 'split.php?project=' . $project;
+    }
+  }
+  return $page;
+}
+
 //Generate the main div for index.php
 //todo move this to a new file
-function startStopForm()
+function startStopForm($returnTo = null, $projectId = null)
 {
 //it will show either the current job with a stop button
 //or a list of jobs and a start button
 
   global $conn;
+
+  $hidden = '';
+  if ($returnTo) {
+    $returnEsc = htmlspecialchars((string) $returnTo, ENT_QUOTES, 'UTF-8');
+    $projectEsc = ($projectId !== null && $projectId !== '' && preg_match('/^\d+$/', (string) $projectId))
+      ? htmlspecialchars((string) (int) $projectId, ENT_QUOTES, 'UTF-8')
+      : '';
+    $hidden = '<input type="hidden" name="return_to" value="' . $returnEsc . '">'
+      . '<input type="hidden" name="return_project" id="return_project" value="' . $projectEsc . '">';
+  }
+
   //see if user is currently working
-  $sql = "SELECT entries.id, categories_id, display_name, start_time, end_time, comment, tags 
+  $sql = "SELECT entries.id, categories_id, display_name, start_time, end_time, comment, tags, project_id, follow_up
   FROM entries
   LEFT JOIN categories
   ON entries.categories_id = categories.id 
@@ -71,11 +101,15 @@ function startStopForm()
   if ($row) {
     //if you are currently working on XX this will happen
     $tagsEsc = htmlspecialchars((string) $row['tags'], ENT_QUOTES, 'UTF-8');
+    $linkedProject = $row['project_id'] !== null && $row['project_id'] !== ''
+      ? $row['project_id']
+      : $projectId;
+    $followUp = (isset($row['follow_up']) && $row['follow_up'] === 'Y') ? 'Y' : 'N';
     return "<span>Your current open Job is " . $row['display_name'] . ".</span><br><span>The Job has been open for <span id='timer'></span></span><br><form method=POST action=stop_work.php><br>"
-      . quillEditorMarkup('comment', $row['comment']) . "<br>
-    " . CategoryDropList('entries','N') . " <br>    <div>
-      <span>Were you interrupted: </span> <span id='interrupted'><input name='interrupted' id='interrupted' type='checkbox' value='Y'></span>
-    </div>    <div class='tags'>
+      . quillEditorMarkup('comment', $row['comment']) . "<br>"
+      . "<div class='start-stop-field'><label for='categories'>Switch to</label> " . CategoryDropList('entries', 'N') . "</div>"
+      . startStopLinkFields($linkedProject, $followUp, true)
+      . "<div class='tags'>
       <div>
         <label>Add Tags: </label>
         <input type='text' name='addTags' id='addTags' onkeyup='showTags(this.value)'>
@@ -86,13 +120,35 @@ function startStopForm()
 
       </div>
     </div>
-<input type=submit value='Stop Work'></form>";
+" . $hidden . "<input type=submit value='Stop Work'></form>";
   } else {
     //if you are not currently working on anything this will happen
     return "<span>No current open job</span><br><span>Open a Job?</span> <br>Current time:<span id='timer'></span><br> <form method=POST action=start_work.php>"
-      . CategoryDropList('entries','N') . "<br>" . quillEditorMarkup('comment')
-      . "<br><input type=submit value='Get To Work'></form>";
+      . "<div class='start-stop-field'><label for='categories'>Category</label> " . CategoryDropList('entries', 'N') . "</div>"
+      . quillEditorMarkup('comment')
+      . startStopLinkFields($projectId, 'N', false)
+      . $hidden . "<input type=submit value='Get To Work'></form>";
   }
+}
+
+/**
+ * Project + follow-up (and optional interrupted) fields for start/stop.
+ */
+function startStopLinkFields($linkedProjectId = null, $followUp = 'N', $includeInterrupted = false)
+{
+  $followChecked = ($followUp === 'Y') ? ' checked' : '';
+  $html = '';
+  if ($includeInterrupted) {
+    $html .= "<div class='start-stop-field'><label for='interrupted'>"
+      . "<input name='interrupted' id='interrupted' type='checkbox' value='Y'>"
+      . " Interrupted</label></div>";
+  }
+  $html .= "<div class='start-stop-field'><label for='follow_up'>"
+    . "<input name='follow_up' id='follow_up' type='checkbox' value='Y'{$followChecked}>"
+    . " Needs follow-up</label></div>";
+  $html .= "<div class='start-stop-field'><label for='project_id'>Project</label> "
+    . generateProjectsList('project_id', $linkedProjectId) . "</div>";
+  return $html;
 }
 
 
@@ -670,6 +726,64 @@ function generateProjectsList($name, $default = NULL, $incClosed = "N") {
   return $output;
 }
 
+/**
+ * Create a project from a time entry (dropdown value "new").
+ *
+ * @return int New project id, or 0 on failure
+ */
+function createProjectFromEntry($title, $description = '', $categoryId = 0)
+{
+  global $conn;
+  $titleEsc = $conn->real_escape_string((string) $title);
+  $descEsc = $conn->real_escape_string((string) $description);
+  $cat = (int) $categoryId;
+  $now = date('Y-m-d H:i:s');
+  $sql = "INSERT INTO `projects` (`id`, `title`, `project_cat`, `date_created`, `date_closed`, `project_desc`, `minutes`, `steps`, `steps_complete`, `steps_incomplete`)
+    VALUES (NULL, '{$titleEsc}', '{$cat}', '{$now}', NULL, '{$descEsc}', '0', '0', '0', '0')";
+  $conn->query($sql);
+  logAction("Ran SQL on DB, " . $sql, "file");
+  return (int) $conn->insert_id;
+}
+
+/**
+ * Posted project_id: empty, existing id, or "new" (creates a project).
+ *
+ * @return int|null
+ */
+function resolvePostedProjectId($comment = '', $categoryId = '')
+{
+  global $conn;
+  $projectId = issetrequest('project_id', '');
+  if ($projectId === null || $projectId === '' || $projectId === 'NULL') {
+    return null;
+  }
+  if ($projectId === 'new') {
+    $catName = 'entry';
+    if ($categoryId !== '' && $categoryId !== null) {
+      $cid = (int) $categoryId;
+      $result = $conn->query("SELECT display_name FROM categories WHERE id = {$cid} LIMIT 1");
+      if ($result && ($row = mysqli_fetch_assoc($result))) {
+        $catName = $row['display_name'];
+      }
+    }
+    $id = createProjectFromEntry('TODO - ' . $catName, $comment, $categoryId);
+    return $id > 0 ? $id : null;
+  }
+  if (!preg_match('/^\d+$/', (string) $projectId)) {
+    return null;
+  }
+  return (int) $projectId;
+}
+
+/**
+ * Checkbox POST: Y if checked, otherwise N.
+ */
+function postedCheckboxY($name)
+{
+  $val = issetrequest($name, 'N');
+  return $val === 'Y' ? 'Y' : 'N';
+}
+
 //function to update the time spent on a project, $id is the project id
 function UpdateTimeOnProject($id) {
   global $conn;
@@ -818,6 +932,93 @@ function getProjectEntries($id) {
   return $entries;
 }
 
+/**
+ * Project edit form + linked entries (full page and Split pane).
+ *
+ * @param mixed $id
+ * @param array $defaults Optional title / category / description for a new project
+ */
+function projectEditorMarkup($id = '', $defaults = [])
+{
+  global $conn;
+
+  $id = ($id === null) ? '' : (string) $id;
+  $project_cat = $defaults['project_cat'] ?? '';
+  $title = $defaults['title'] ?? '';
+  $project_desc = $defaults['project_desc'] ?? '';
+  $date_created = date('Y-m-d H:i:s');
+  $date_closed = '';
+  $steps = 0;
+  $steps_complete = 0;
+  $steps_incomplete = 0;
+
+  if ($id !== '' && ctype_digit($id)) {
+    $sql = "SELECT `id`, `project_cat`, `title`, `date_created`, `date_closed`, `project_desc`, `minutes`, `steps`, `steps_complete`, `steps_incomplete`
+      FROM projects
+      WHERE id = " . (int) $id;
+    $result = $conn->query($sql);
+    logAction("Ran SQL on DB, " . $sql, "file");
+    $row = ($result) ? mysqli_fetch_array($result) : null;
+    if ($row) {
+      $title = $row['title'];
+      $project_cat = $row['project_cat'];
+      $date_created = $row['date_created'];
+      $date_closed = $row['date_closed'];
+      $project_desc = $row['project_desc'];
+      $steps = $row['steps'];
+      $steps_complete = $row['steps_complete'];
+      $steps_incomplete = $row['steps_incomplete'];
+      $id = (string) (int) $row['id'];
+    } else {
+      $id = '';
+    }
+  } else {
+    $id = '';
+  }
+
+  $date_created_html = $date_created ? htmlspecialchars((string) displayTime($date_created, 'html'), ENT_QUOTES, 'UTF-8') : '';
+  $date_closed_html = ($date_closed && $date_closed !== 'NULL')
+    ? htmlspecialchars((string) displayTime($date_closed, 'html'), ENT_QUOTES, 'UTF-8')
+    : '';
+  $entries = getProjectEntries($id);
+  $titleEsc = htmlspecialchars((string) $title, ENT_QUOTES, 'UTF-8');
+  $idEsc = htmlspecialchars($id, ENT_QUOTES, 'UTF-8');
+  $steps = (int) $steps;
+  $steps_complete = (int) $steps_complete;
+  $steps_incomplete = (int) $steps_incomplete;
+  $timeLabel = minutesToHours($entries['time']);
+  $countLabel = $entries['count'];
+
+  $html = "<div class='project-editor'>";
+  $html .= "<form method='post'>";
+  $html .= "<input type='hidden' name='id' id='id' value='{$idEsc}'>";
+  $html .= "<label for='title'>Title:</label> ";
+  $html .= "<input type='text' id='title' name='title' value='{$titleEsc}'> ";
+  $html .= "<span id='idDisp'>ID: {$idEsc}</span><br><br>";
+  $html .= "<label for='date_created'>Date Created:</label> ";
+  $html .= "<input type='datetime-local' id='date_created' name='date_created' value='{$date_created_html}'><br><br>";
+  $html .= "<label for='date_closed'>Date Closed:</label> ";
+  $html .= "<input type='datetime-local' id='date_closed' name='date_closed' value='{$date_closed_html}'> ";
+  $html .= "<input type='button' value='Set To Current Time' onclick=\"setInputToCurrentDate('date_closed')\"><br><br>";
+  $html .= "<label for='project_cat'>Project Category</label> ";
+  $html .= CategoryDropList('projects', 'N', $project_cat);
+  $html .= "<br><br>";
+  $html .= "<p>{$steps} Steps in Project</p>";
+  $html .= "<p>{$steps_complete} Complete</p>";
+  $html .= "<p>{$steps_incomplete} Left to Complete</p>";
+  $html .= "<div id='editor' class='quill-full-editor'>" . $project_desc . "</div>";
+  $html .= "<br><input type='button' value='Save Project' onclick='saveProject()'>";
+  $html .= "</form>";
+  $html .= "<div class='project-editor-entries'>";
+  $html .= "<p>Entries of time Spent on this project</p>";
+  $html .= "<p>Time spent on Project: {$timeLabel}</p>";
+  $html .= "<p>Number of entires: {$countLabel} </p>";
+  $html .= $entries['table'];
+  $html .= "</div></div>";
+
+  return $html;
+}
+
 
 function setting($setting) {
   return $_SESSION['settings'][$setting]['value'];
@@ -937,7 +1138,8 @@ function check_settings() {
   // Reload when new preference keys appear after a migration.
   if (!isset($_SESSION['settings']['theme_mode'])
     || !isset($_SESSION['settings']['home_view'])
-    || !isset($_SESSION['settings']['log_all'])) {
+    || !isset($_SESSION['settings']['log_all'])
+    || !isset($_SESSION['settings']['split_percent'])) {
     $_SESSION['settings'] = getSettings();
   }
 }

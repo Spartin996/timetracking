@@ -21,6 +21,7 @@ if (isset($_POST["hasBeenSub"])) {
   //get the settings from the form
   $home_view = normalizeHomeView(issetpost("home_view", "standard"));
   $calendar_span = normalizeCalendarSpan(issetpost("calendar_span", "week"));
+  $split_percent = normalizeSplitPercent(issetpost("split_percent", "50"));
   $log_all = (issetpost("log_all", "N") === "Y") ? "Y" : "N";
 
   $new_settings = array(
@@ -29,6 +30,7 @@ if (isset($_POST["hasBeenSub"])) {
     "date_view" => issetpost("date_view"),
     "home_view" => $home_view,
     "calendar_span" => $calendar_span,
+    "split_percent" => (string) $split_percent,
     "log_all" => $log_all,
     "theme_mode" => $theme_mode,
     "primary_background" => issetpost("primary_background"),
@@ -62,6 +64,13 @@ if (isset($_POST["hasBeenSub"])) {
     logAction("ran update query: " . $sql);
   }
 
+  $splitCheck = $conn->query("SELECT id FROM settings WHERE setting = 'split_percent' LIMIT 1");
+  if ($splitCheck && $splitCheck->num_rows === 0) {
+    $sp = $conn->real_escape_string((string) $split_percent);
+    $conn->query("INSERT INTO settings (`setting`, `value`, `description`) VALUES ('split_percent', '{$sp}', 'Split page entries pane width as a percent (20-80). Projects use the rest.')");
+    logAction("inserted missing split_percent setting", "file");
+  }
+
   $_SESSION['settings'] = getSettings();
 
 
@@ -86,6 +95,7 @@ function colourField($name, $label, $previewTextColor = '#333')
 $theme_mode = settingValue('theme_mode', 'system');
 $home_view = normalizeHomeView(settingValue('home_view', 'standard'));
 $calendar_span = normalizeCalendarSpan(settingValue('calendar_span', 'week'));
+$split_percent = normalizeSplitPercent(settingValue('split_percent', '50'));
 $log_all = (settingValue('log_all', 'N') === 'Y') ? 'Y' : 'N';
 
 ?>
@@ -148,6 +158,13 @@ $log_all = (settingValue('log_all', 'N') === 'Y') ? 'Y' : 'N';
         <option value="day" <?php echo ($calendar_span === 'day') ? 'selected' : ''; ?>>Day</option>
         <option value="week" <?php echo ($calendar_span === 'week') ? 'selected' : ''; ?>>Week</option>
       </select>
+    </div>
+
+    <h3>Split View</h3>
+    <p>Width of the entries pane on the Split page. The projects pane uses the rest.</p>
+    <div>
+      <label for='split_percent'>Entries pane: </label>
+      <input name='split_percent' id='split_percent' type='number' min='20' max='80' step='1' value="<?php echo (int) $split_percent; ?>"> %
     </div>
 
     <h3>Logging</h3>

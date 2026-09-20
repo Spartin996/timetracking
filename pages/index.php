@@ -50,33 +50,7 @@ $calendar_day = isset($_GET['day']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET
   <?php } elseif ($home_view === 'calendar') { ?>
     <?php echo renderCalendarHome($calendar_day, $calendar_span); ?>
   <?php } else { ?>
-    <div id='startStop'>
-      <?php echo startStopForm(); ?>
-    </div>
-    <script>
-      document.querySelectorAll('#startStop form').forEach(function (form) {
-        form.addEventListener('submit', function () {
-          syncQuillInputs(form);
-        });
-      });
-    </script>
-
-    <h2>Today</h2>
-    <div id='todayEntries'>
-      <?php
-      $reportStart = getOldDate('14') . ' 00:00:00';
-      $entries14 = fetchEntries($reportStart, $end_date, 'all', 'desc');
-      $todayEntries = entriesInRange($entries14, $start_date, $end_date);
-      echo showEntriesFromRows($todayEntries, $start_date, $end_date);
-      ?>
-    </div>
-
-    <h2>Last 14 Days</h2>
-    <div id='yesterdayEntries'>
-      <?php
-      echo showEntriesFromRows($entries14, $reportStart, $end_date);
-      ?>
-    </div>
+    <?php echo renderStandardHome(); ?>
   <?php } ?>
   </div>
 

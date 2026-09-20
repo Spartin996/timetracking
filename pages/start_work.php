@@ -17,21 +17,20 @@ if ($category === null || $category === '') {
 }
 $comment = issetrequest('comment', '');
 $tags = issetrequest('tags', '');
-$interrupted = issetrequest('interrupted', 'N');
-if ($interrupted !== 'Y') {
-  $interrupted = 'N';
-}
+$interrupted = postedCheckboxY('interrupted');
+$follow_up = postedCheckboxY('follow_up');
+$projectId = resolvePostedProjectId($comment, $category);
 
 $comment = $conn->real_escape_string($comment);
 $tags = $conn->real_escape_string($tags);
+$projectSql = ($projectId === null) ? 'NULL' : "'" . (int) $projectId . "'";
 
 $sql = "INSERT INTO entries 
-  (`id`, `categories_id`, `start_time`, `end_time`, `comment`, `tags`, `interrupted`, `last_modified`) 
+  (`id`, `categories_id`, `start_time`, `end_time`, `comment`, `tags`, `interrupted`, `follow_up`, `project_id`, `last_modified`) 
   VALUES 
-  (NULL, '" . $category . "', '" . $time . "', NULL, '" . $comment . "', '" . $tags . "', '" . $interrupted . "', '" . $time . "')";
+  (NULL, '" . $category . "', '" . $time . "', NULL, '" . $comment . "', '" . $tags . "', '" . $interrupted . "', '" . $follow_up . "', " . $projectSql . ", '" . $time . "')";
 $result = $conn->query($sql);
 logAction("Ran SQL on DB, " . $sql, "file");
 
-// go it index.php when done
-header("Location: index.php");
-
+header('Location: ' . safeReturnLocation());
+exit;

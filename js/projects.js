@@ -1,6 +1,120 @@
 // functions for the projects side of the project
 // Created 2024-11-13 By MM - First version
 
+const projectQuillToolbar = [
+  [{ list: "check" }, { list: "bullet" }, { list: "ordered" }],
+  ["bold", "underline", "strike"],
+  ["code-block"],
+  ["link", "image"],
+  [{ header: 2 }],
+  [{ indent: "-1" }, { indent: "+1" }],
+  [{ color: [] }, { background: [] }],
+  ["clean"],
+];
+
+function initProjectEditor(root) {
+  root = root || document;
+  if (typeof Quill === "undefined") {
+    return;
+  }
+  let editor = (root.querySelector && root.querySelector("#editor")) || document.getElementById("editor");
+  if (!editor) {
+    return;
+  }
+  window.quill = new Quill(editor, {
+    modules: {
+      toolbar: projectQuillToolbar,
+    },
+    theme: "snow",
+  });
+}
+
+function isSplitPage() {
+  return !!document.getElementById("homeSplit");
+}
+
+function setSplitReturnProject(id) {
+  let el = document.getElementById("return_project");
+  if (el) {
+    el.value = id || "";
+  }
+}
+
+function replaceSplitProjectQuery(id) {
+  if (!isSplitPage() || !window.history || !window.history.replaceState) {
+    return;
+  }
+  let url = new URL(window.location.href);
+  if (id) {
+    url.searchParams.set("project", id);
+  } else {
+    url.searchParams.delete("project");
+  }
+  window.history.replaceState({}, "", url);
+}
+
+function highlightSplitProject(id) {
+  document.querySelectorAll(".split-project-item").forEach(function (el) {
+    el.classList.toggle("is-active", String(el.getAttribute("data-project-id")) === String(id || ""));
+  });
+}
+
+function refreshSplitProjectList(selectedId) {
+  let list = document.getElementById("splitProjectList");
+  if (!list) {
+    return;
+  }
+  let url = "../ajax/project_list.php";
+  if (selectedId) {
+    url += "?selected=" + encodeURIComponent(selectedId);
+  }
+  let xhr = new XMLHttpRequest();
+  xhr.open("GET", url);
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      list.innerHTML = xhr.responseText;
+      highlightSplitProject(selectedId);
+    }
+  };
+  xhr.send();
+}
+
+function loadSplitProject(id) {
+  let editorPane = document.getElementById("splitProjectEditor");
+  if (!editorPane) {
+    return;
+  }
+  id = id || "";
+  let url = "../ajax/project_editor.php";
+  if (id !== "") {
+    url += "?id=" + encodeURIComponent(id);
+  }
+  let xhr = new XMLHttpRequest();
+  xhr.open("GET", url);
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      editorPane.innerHTML = xhr.responseText;
+      initProjectEditor(editorPane);
+      setSplitReturnProject(id);
+      highlightSplitProject(id);
+      replaceSplitProjectQuery(id);
+    } else {
+      displayMessage("Failed to load project");
+    }
+  };
+  xhr.send();
+}
+
+function onProjectSaved(id) {
+  if (!document.getElementById("splitProjectList")) {
+    return;
+  }
+  refreshSplitProjectList(id);
+  setSplitReturnProject(id);
+  replaceSplitProjectQuery(id);
+  highlightSplitProject(id);
+}
+
 function saveProject() {
     // Get form elements
     let id = document.getElementById('id').value;
@@ -12,7 +126,9 @@ function saveProject() {
     //todo get the category and save it
   
     // Get editor content
-    let editorContent = quill.getSemanticHTML();
+    let editorContent = (window.quill && window.quill.getSemanticHTML)
+      ? window.quill.getSemanticHTML()
+      : "";
 
 
     let data = {
@@ -49,6 +165,9 @@ function saveProject() {
           idDisp.innerHTML = "ID: " + id;
 
 
+        }
+        if (typeof onProjectSaved === "function") {
+          onProjectSaved(id);
         }
       } else {
         displayMessage("Project Save Failed with Status: " + xhr.status);

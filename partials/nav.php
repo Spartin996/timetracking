@@ -22,6 +22,7 @@
   </button>
   <div class="nav-links" id="navLinks">
     <a href='index.php'>Home</a>
+    <a href='split.php'>Split</a>
     <a href='about.php'>About</a>
     <div class="dropdown1">
       <span>Configuration <img src="../images/down-arrow.svg" alt=""></span>
